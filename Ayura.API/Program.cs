@@ -26,6 +26,7 @@ builder.Services.AddSingleton<IMongoClient>(s =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfileRetrieveService, ProfileRetrieveService>();
+builder.Services.AddScoped<IProfileUpdateService, ProfileUpdateService>();
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 
 builder.Services.AddControllers();
