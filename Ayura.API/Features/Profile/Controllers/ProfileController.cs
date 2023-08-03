@@ -10,10 +10,12 @@ namespace Ayura.API.Features.Profile.Controllers;
 public class ProfileController : ControllerBase
 {
     private readonly IProfileRetrieveService _profileRetrieveService;
+    private readonly IProfileUpdateService _profileUpdateService;
 
-    public ProfileController(IProfileRetrieveService profileRetrieveService)
+    public ProfileController(IProfileRetrieveService profileRetrieveService, IProfileUpdateService profileUpdateService)
     {
         _profileRetrieveService = profileRetrieveService;
+        _profileUpdateService = profileUpdateService;
     }
 
     public string ResolveEmailFromJWT()
@@ -26,22 +28,42 @@ public class ProfileController : ControllerBase
 
         return email;
     }
-
+    
     [HttpGet("details")]
     public async Task<IActionResult> GetProfileDetails()
     {
         try
         {
             string email = ResolveEmailFromJWT();
-
+            
             var profileDetails = await _profileRetrieveService.RetrieveProfileDetails(email);
 
-            if (profileDetails == null)
+            if (profileDetails == null) 
             {
                 return Ok("No User Details");
             }
 
             return Ok(profileDetails);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occurred while processing the request.");
+        }
+    }
+    
+    [HttpPut("update")]
+    public async Task<IActionResult> UpdateProfileDetails([FromBody] UpdateDetailsDTO updateDetailsDTO)
+    {
+        Console.Write("Routing Correct\n");
+        try
+        {
+            string email = ResolveEmailFromJWT();
+            Console.Write($"Email is {email}\n");
+            var updatedProfileDetails = await _profileUpdateService.UpdateProfileDetails(email, updateDetailsDTO);
+            
+            Console.Write("Function Done!!");
+
+            return Ok(updatedProfileDetails);
         }
         catch (Exception ex)
         {
