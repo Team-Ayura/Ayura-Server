@@ -1,4 +1,5 @@
 using System.Text;
+using Ayura.API.Features.Profile.Services;
 using Ayura.API.Models.Configuration;
 using Ayura.API.Services;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,7 @@ builder.Services.AddSingleton<IMongoClient>(s =>
     new MongoClient(builder.Configuration.GetValue<string>("AyuraDatabaseSettings:ConnectionString")));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IProfileRetrieveService, ProfileRetrieveService>();
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 
 builder.Services.AddControllers();
