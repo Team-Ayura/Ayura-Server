@@ -61,6 +61,12 @@ All Available Methods.
    * Search for the OTP in the Database. 
 
 
-
+## Storing in the Database
+1. An OtpModel class should be created to store the OTPs in the Database.
+2. The OtpModel class should contain the following properties.
+   * MobileNumber
+   * OTP
+   * ExpiryTime
+3. The ExpiryTime should be set to the current time + 5 minutes when the OTP is stored in the Database.
 
 
