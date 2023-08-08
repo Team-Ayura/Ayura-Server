@@ -1,4 +1,5 @@
 using System.Text;
+using Ayura.API.Features.OTP.Services;
 using Ayura.API.Features.Profile.Services;
 using Ayura.API.Models.Configuration;
 using Ayura.API.Services;
@@ -27,6 +28,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfileRetrieveService, ProfileRetrieveService>();
 builder.Services.AddScoped<IProfileUpdateService, ProfileUpdateService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 
 builder.Services.AddControllers();

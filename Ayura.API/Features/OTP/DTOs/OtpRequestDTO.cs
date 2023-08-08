@@ -4,5 +4,4 @@ public class OtpRequestDTO
 {
     // user mobile number
     public string mobileNumber { get; set; } = null!;
-    public string otp { get; set; } = null!;
 }

@@ -34,19 +34,39 @@ namespace Ayura.API.Services
 
             _mapper = mapperConfig.CreateMapper();
         }
-        
+
         public Task<string> GenerateOtp(OtpRequestDTO otpRequestDTO)
         {
             string otp = OtpGenerator.GenerateOtp();
-           
+
             // mapping the otpRequestDTO to OTP model 
             var otpModel = _mapper.Map<OTP>(otpRequestDTO);
-            
+
             // save the otp to the model
             otpModel.Otp = otp;
+
+            // set the expiry time
+            otpModel.ExpiryTime = DateTime.UtcNow.AddMinutes(10);
             
-            // save the otp to the database
-            _otpCollection.InsertOne(otpModel);
+            Console.Write("OTP Expiry Time: " + otpModel.ExpiryTime + "\n");
+
+            // if mobile number exists in otp database, replace otp
+            var filter = Builders<OTP>.Filter.Eq("MobileNumber", otpModel.MobileNumber);
+
+            // if the mobile number exists, replace the otp
+            var otpFromDatabase = _otpCollection.Find(filter).FirstOrDefault();
+
+            if (otpFromDatabase != null)
+            {
+                // replace the otp
+                _otpCollection.ReplaceOne(filter, otpModel);
+            }
+
+            else
+            {
+                // save the otp to the database
+                _otpCollection.InsertOne(otpModel);
+            }
             
             // send to the mobile
             
@@ -64,9 +84,9 @@ namespace Ayura.API.Services
             
             // get the otp from the database
             var otp = _otpCollection.Find(filter).FirstOrDefault();
-            
+            Console.Write("OTP Expiry Time: " + otp.ExpiryTime + "\n");
             // compare the otp
-            if (otp == null)
+            if (otp.Otp == null)
             {
                 // otp does not exist
                 return Task.FromResult("Otp does not exist");
@@ -76,7 +96,7 @@ namespace Ayura.API.Services
                 // otp does not match
                 return Task.FromResult("Otp does not match");
             }
-            else if (otp.ExpiryTime < DateTime.Now)
+            else if (otp.ExpiryTime < DateTime.UtcNow)
             {
                 // otp expired
                 return Task.FromResult("Otp expired");
