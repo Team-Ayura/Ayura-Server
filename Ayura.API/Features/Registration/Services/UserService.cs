@@ -13,6 +13,7 @@ public class UserService : IUserService
         var database = mongoClient.GetDatabase(settings.DatabaseName);
         _userCollection = database.GetCollection<User>(settings.UserCollection);
     }
+
     public List<User> Get()
     {
         var filter = Builders<User>.Filter.Empty;
@@ -26,13 +27,6 @@ public class UserService : IUserService
         return _userCollection.Find(filter).FirstOrDefault();
     }
 
-    public User UserByEmail(string email)
-    {
-        var filter = Builders<User>.Filter.Empty;
-        filter = filter & Builders<User>.Filter.Eq(u => u.Email, email);
-        return _userCollection.Find(filter).FirstOrDefault();
-    }
-
     public User Create(User user)
     {
         _userCollection.InsertOne(user);
@@ -43,7 +37,7 @@ public class UserService : IUserService
     {
         var filter = Builders<User>.Filter.Empty;
         filter = filter & Builders<User>.Filter.Eq(u => u.Id, id);
-        _userCollection.ReplaceOne(filter,user);
+        _userCollection.ReplaceOne(filter, user);
     }
 
     public void Remove(string id)
@@ -51,5 +45,12 @@ public class UserService : IUserService
         var filter = Builders<User>.Filter.Empty;
         filter = filter & Builders<User>.Filter.Eq(u => u.Id, id);
         _userCollection.DeleteOne(filter);
+    }
+
+    public User UserByEmail(string email)
+    {
+        var filter = Builders<User>.Filter.Empty;
+        filter = filter & Builders<User>.Filter.Eq(u => u.Email, email);
+        return _userCollection.Find(filter).FirstOrDefault();
     }
 }
