@@ -13,6 +13,6 @@ public class SampleController : Controller
     [Authorize(Roles = Roles.Admin)]
     public IActionResult Index()
     {
-        return Ok(new { Status = "success"});
+        return Ok(new { Status = "success" });
     }
 }
