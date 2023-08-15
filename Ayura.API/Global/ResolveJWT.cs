@@ -4,7 +4,7 @@ namespace Ayura.API.Features.Profile.Helpers;
 
 public class ResolveJWT
 {
-    public static string ResolveEmailFromJWT(HttpRequest request)
+    public static string ResolveIdFromJWT(HttpRequest request)
     {
         var jwtToken = request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
