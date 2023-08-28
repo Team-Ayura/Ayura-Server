@@ -4,8 +4,7 @@ namespace Ayura.API.Models;
 
 [BsonIgnoreExtraElements]
 public class OTP
-{
-    [BsonElement("mobileNumber")] public string MobileNumber { get; set; }
+{ [BsonElement("mobileNumber")] public string MobileNumber { get; set; }
 
     [BsonElement("otp")] public string Otp { get; set; }
 
