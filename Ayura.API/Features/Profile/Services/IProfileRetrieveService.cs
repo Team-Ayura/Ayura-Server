@@ -4,5 +4,5 @@ namespace Ayura.API.Features.Profile.Services;
 
 public interface IProfileRetrieveService
 {
-    Task<ProfileDetailsDTO> RetrieveProfileDetails(string email);
+    Task<ProfileDetailsDto> RetrieveProfileDetails(string email);
 }

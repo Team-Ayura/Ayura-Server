@@ -4,7 +4,7 @@ namespace Ayura.API.Features.OTP.Services;
 
 public interface IOtpService
 {
-    Task<string> GenerateOtp(OtpRequestDTO otpRequestDTO);
+    Task<string> GenerateOtp(OtpRequestDto otpRequestDto);
 
-    Task<string> VerifyOtp(OtpVerifierDTO otpVerifierDTO);
+    Task<string> VerifyOtp(OtpVerifierDto otpVerifierDto);
 }

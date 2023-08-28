@@ -1,6 +1,6 @@
 namespace Ayura.API.Features.OTP.DTOs;
 
-public class OtpVerifierDTO
+public class OtpVerifierDto
 {
     // User mobile number and OTP
     public string MobileNumber { get; set; } = string.Empty;

@@ -17,7 +17,7 @@ public class EmailVerificationController : Controller
     }
 
     [HttpPost("generate")]
-    public IActionResult GenerateEmailVerification([FromBody] EVCRequestDTO evcodeRequest)
+    public IActionResult GenerateEmailVerification([FromBody] EvcRequestDto evcodeRequest)
     {
         var userId = ResolveJWT.ResolveIdFromJWT(Request);
         // if user is not logged in, return 401
@@ -29,7 +29,7 @@ public class EmailVerificationController : Controller
 
 
     [HttpPost("verify")]
-    public IActionResult VerifyEmail([FromBody] EVCVerifyDTO evcodeVerify)
+    public IActionResult VerifyEmail([FromBody] EvcVerifyDto evcodeVerify)
     {
         var userId = ResolveJWT.ResolveIdFromJWT(Request);
         var result = _emailVerificationService.VerifyEmail(evcodeVerify, userId);

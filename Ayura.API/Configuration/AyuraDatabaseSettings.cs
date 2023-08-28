@@ -1,4 +1,6 @@
-namespace Ayura.API.Models.Configuration;
+using Ayura.API.Models.Configuration;
+
+namespace Ayura.API.Configuration;
 
 public class AyuraDatabaseSettings : IAyuraDatabaseSettings
 {

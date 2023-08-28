@@ -38,14 +38,14 @@ public class ProfileController : ControllerBase
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateProfileDetails([FromBody] UpdateDetailsDTO updateDetailsDTO)
+    public async Task<IActionResult> UpdateProfileDetails([FromBody] UpdateDetailsDto updateDetailsDto)
     {
         var _userId = ResolveJWT.ResolveIdFromJWT(Request);
 
         try
         {
             Console.Write($"ID is {_userId}\n");
-            var updatedProfileDetails = await _profileUpdateService.UpdateProfileDetails(_userId, updateDetailsDTO);
+            var updatedProfileDetails = await _profileUpdateService.UpdateProfileDetails(_userId, updateDetailsDto);
 
             Console.Write("Function Done!!");
 
