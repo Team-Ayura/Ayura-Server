@@ -3,6 +3,7 @@ using Ayura.API.Configuration;
 using Ayura.API.Features.EmailVerification.DTOs;
 using Ayura.API.Features.EmailVerification.Helpers;
 using Ayura.API.Features.EmailVerification.Services;
+using Ayura.API.Features.Profile.Helpers.MailService;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
 using Microsoft.Extensions.Options;
@@ -15,6 +16,7 @@ public class EmailVerificationService : IEmailVerificationService
     private readonly IOptions<AppSettings> _appSettings;
     private readonly IMongoCollection<Evc> _evcCollection;
     private readonly IMapper _mapper;
+    private readonly IMailService _mailService;
 
     public EmailVerificationService(IAppSettings appSettings, IAyuraDatabaseSettings settings,
         IMongoClient mongoClient, IOptions<AppSettings> appSettingsOptions)

@@ -1,7 +1,7 @@
 namespace Ayura.API.Features.EmailVerification.DTOs;
 
-public class EvcVerifyDto
+public class EVCVerifyDTO
 {
-    public string Email { get; set; } = null!;
-    public string VerificationCode { get; set; } = null!;
+    public string email { get; set; }
+    public string verificationCode { get; set; }
 }

@@ -21,7 +21,7 @@ public class ProfileController : ControllerBase
     [HttpGet("details")]
     public async Task<IActionResult> GetProfileDetails()
     {
-        var _userId = ResolveJWT.ResolveEmailFromJWT(Request);
+        var _userId = ResolveJWT.ResolveIdFromJWT(Request);
 
         try
         {
@@ -40,7 +40,7 @@ public class ProfileController : ControllerBase
     [HttpPut("update")]
     public async Task<IActionResult> UpdateProfileDetails([FromBody] UpdateDetailsDto updateDetailsDto)
     {
-        var _userId = ResolveJWT.ResolveEmailFromJWT(Request);
+        var _userId = ResolveJWT.ResolveIdFromJWT(Request);
 
         try
         {

@@ -31,7 +31,7 @@ public class ProfileRetrieveService : IProfileRetrieveService
     public async Task<ProfileDetailsDto> RetrieveProfileDetails(string id)
     {
         var filter = Builders<User>.Filter.Eq("Id", id);
-        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
+        User user = await _userCollection.Find(filter).FirstOrDefaultAsync();
 
         if (user == null)
         {
