@@ -20,4 +20,7 @@ public interface ICommunityService
 
     // 5. Delete a community
     Task DeleteCommunity(string id);
+
+    // 6. Add a member
+    Task AddMember(string communityId, string userId);
 }

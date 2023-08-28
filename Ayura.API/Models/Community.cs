@@ -19,4 +19,7 @@ public class Community
     [BsonElement("isPublic")] public bool IsPublic { get; set; }
 
     [BsonElement("categories")] public List<string> Categories { get; set; } = null!;
+
+    // Members of a community
+    [BsonElement("members")] public List<ObjectId> Members { get; set; } = new List<ObjectId>();
 }

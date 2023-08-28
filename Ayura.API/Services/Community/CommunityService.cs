@@ -3,6 +3,7 @@ using Ayura.API.Models;
 using MongoDB.Driver;
 using Ayura.API.Models.Configuration;
 using AutoMapper;
+using MongoDB.Bson;
 
 
 namespace Ayura.API.Services;
@@ -42,11 +43,42 @@ public class CommunityService : ICommunityService
 
     // 4. Update a Community
     // If the ID is matched the DB.community which is c , it will be replaced by the community
-    public async Task UpdateCommunity(Community community) =>
-        await _communityCollection.ReplaceOneAsync(c => c.Id == community.Id, community);
+    public async Task UpdateCommunity(Community updatedCommunity)
+    {
+        // Retrieve the community by its ID
+        var filter = Builders<Community>.Filter.Eq(c => c.Id, updatedCommunity.Id);
+        var existingCommunity = await _communityCollection.Find(filter).FirstOrDefaultAsync();
+        // => await _communityCollection.ReplaceOneAsync(c => c.Id == community.Id, community);
+        
+        if (existingCommunity != null)
+        {
+            // Preserve the existing Members list in the updatedCommunity
+            updatedCommunity.Members = existingCommunity.Members;
+            
+            // Update the community in the database
+            await _communityCollection.ReplaceOneAsync(filter, updatedCommunity);
+        }
+        
+    }
 
     // 5. Delete a Community
     public async Task DeleteCommunity(string id) =>
         await _communityCollection.DeleteOneAsync(c => c.Id == id);
+
+    // 6. Add a member/user to the community
+    public async Task AddMember(string communityId, string userId)
+    {
+        // Retrieve the community by its ID
+        var filter = Builders<Community>.Filter.Eq(c => c.Id, communityId);
+        var community = await _communityCollection.Find(filter).FirstOrDefaultAsync();
+
+       var userIdObjectId = ObjectId.Parse(userId);
+
+        community.Members.Add(userIdObjectId);
+
+        // Update the community object in the MongoDB collection
+        var update = Builders<Community>.Update.Set(c => c.Members, community.Members);
+        await _communityCollection.UpdateOneAsync(filter, update);
+    }
     
 }

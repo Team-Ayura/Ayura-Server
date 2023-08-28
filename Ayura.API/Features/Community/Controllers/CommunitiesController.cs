@@ -1,3 +1,4 @@
+using Ayura.API.Features.Community.DTOs;
 using Ayura.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using CommunityModel = Ayura.API.Models.Community; // Create an alias for the type
@@ -26,7 +27,7 @@ public class CommunitiesController : Controller
             return Ok(allCommunities);
         }
 
-        return NotFound();
+        return NotFound(new { Message = "No Communities Found" });
     }
 
     // 2. GET a community by ID
@@ -36,7 +37,7 @@ public class CommunitiesController : Controller
         var existingCommunity = await _communityService.GetCommunities(id);
         if (existingCommunity is null)
         {
-            return NotFound();
+            return NotFound(new { Message = "Community not found." });
         }
 
         return Ok(existingCommunity);
@@ -52,7 +53,7 @@ public class CommunitiesController : Controller
 
     // 4. Update a Community
     [HttpPut("{id:length(24)}")]
-    public async Task<IActionResult> UpdateCommunity(string id, CommunityModel community)
+    public async Task<IActionResult> UpdateCommunity(string id, CommunityModel updatedCommunity)
     {
         //Get the community from DB
         var existingCommunity = await _communityService.GetCommunities(id);
@@ -62,13 +63,23 @@ public class CommunitiesController : Controller
             return NotFound(new { Message = "Community not found." });
         }
 
-        community.Id = existingCommunity.Id;
+        updatedCommunity.Id = existingCommunity.Id;
+        // Since this call Company Model the MembersList will be an empty String
 
-        await _communityService.UpdateCommunity(community);
+        // Preserve old MembersList
+        updatedCommunity.Members = existingCommunity.Members;
+        await _communityService.UpdateCommunity(updatedCommunity);
 
-        return NoContent();
+        // Create the response object
+        var response = new
+        {
+            Message = "Community updated successfully.",
+            Community = updatedCommunity // Include the updated community
+        };
+
+        return Ok(response);
     }
-    
+
     // 5. Delete a community
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
@@ -83,5 +94,13 @@ public class CommunitiesController : Controller
         await _communityService.DeleteCommunity(id);
         return NoContent();
     }
-    
+
+    //6. Adding a member to Community
+    [HttpPut("addMember")]
+    public async Task<IActionResult> AddMember([FromBody] MemberRequest memberRequest)
+    {
+        await _communityService.AddMember(memberRequest.CommunityId, memberRequest.UserId);
+        
+        return Ok(new { Message = "Member Added successfully." });
+    }
 }
