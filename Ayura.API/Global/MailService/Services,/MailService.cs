@@ -1,3 +1,5 @@
+using Ayura.API.Global.MailService.Configuration;
+using Ayura.API.Global.MailService.DTOs_;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;

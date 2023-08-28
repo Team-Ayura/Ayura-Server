@@ -21,7 +21,7 @@ public class ProfileController : ControllerBase
     [HttpGet("details")]
     public async Task<IActionResult> GetProfileDetails()
     {
-        var _userId = ResolveJWT.ResolveIdFromJWT(Request);
+        var _userId = ResolveJwt.ResolveIdFromJWT(Request);
 
         try
         {
@@ -33,14 +33,20 @@ public class ProfileController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "An error occurred while processing the request.");
+            var response = new
+            {
+                ErrorMessage = "An error occurred while processing the request",
+                ExceptionMessage = ex.Message,
+            };
+
+            return StatusCode(500, response);
         }
     }
 
     [HttpPut("update")]
     public async Task<IActionResult> UpdateProfileDetails([FromBody] UpdateDetailsDto updateDetailsDto)
     {
-        var _userId = ResolveJWT.ResolveIdFromJWT(Request);
+        var _userId = ResolveJwt.ResolveIdFromJWT(Request);
 
         try
         {
@@ -53,7 +59,12 @@ public class ProfileController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "An error occurred while processing the request.");
+            var response = new
+            {
+                ErrorMessage = "An error occurred while processing the request",
+                ExceptionMessage = ex.Message,
+            };
+            return StatusCode(500, response);
         }
     }
 }

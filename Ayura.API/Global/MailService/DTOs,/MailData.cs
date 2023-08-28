@@ -1,9 +1,9 @@
-namespace Ayura.API.Features.Profile.Helpers.MailService;
+namespace Ayura.API.Global.MailService.DTOs_;
 
 public class MailData
 {
-    public string EmailToId { get; set; }
-    public string EmailToName { get; set; }
-    public string EmailSubject { get; set; }
-    public string EmailBody { get; set; }
+    public string EmailToId { get; set; } = null!;
+    public string EmailToName { get; set; } = null!;
+    public string EmailSubject { get; set; } = null!;
+    public string EmailBody { get; set; } = null!;
 }
