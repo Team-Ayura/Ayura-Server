@@ -3,7 +3,7 @@ using Ayura.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using CommunityModel = Ayura.API.Models.Community; // Create an alias for the type
 
-namespace Ayura.API.Features.Communities.Controllers;
+namespace Ayura.API.Features.Community.Controllers;
 
 [ApiController]
 [Route("api/communities")]

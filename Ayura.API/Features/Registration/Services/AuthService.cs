@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using Ayura.API.Configuration;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
 using Ayura.API.Models.DTOs;

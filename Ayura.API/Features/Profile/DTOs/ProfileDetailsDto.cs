@@ -1,6 +1,6 @@
 namespace Ayura.API.Features.Profile.DTOs;
 
-public class ProfileDetailsDTO
+public class ProfileDetailsDto
 {
     public string FirstName { get; set; } = string.Empty;
 

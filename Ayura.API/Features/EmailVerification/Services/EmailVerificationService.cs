@@ -1,4 +1,5 @@
 using AutoMapper;
+using Ayura.API.Configuration;
 using Ayura.API.Features.EmailVerification.DTOs;
 using Ayura.API.Features.EmailVerification.Helpers;
 using Ayura.API.Features.EmailVerification.Services;
@@ -7,12 +8,12 @@ using Ayura.API.Models.Configuration;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-namespace Ayura.API.Services;
+namespace Ayura.API.Features.EmailVerification.Services;
 
 public class EmailVerificationService : IEmailVerificationService
 {
     private readonly IOptions<AppSettings> _appSettings;
-    private readonly IMongoCollection<EVC> _evcCollection;
+    private readonly IMongoCollection<Evc> _evcCollection;
     private readonly IMapper _mapper;
 
     public EmailVerificationService(IAppSettings appSettings, IAyuraDatabaseSettings settings,
@@ -20,25 +21,25 @@ public class EmailVerificationService : IEmailVerificationService
     {
         // database and collections setup
         var database = mongoClient.GetDatabase(settings.DatabaseName);
-        _evcCollection = database.GetCollection<EVC>(settings.EvcCollection);
+        _evcCollection = database.GetCollection<Evc>(settings.EvcCollection);
         _appSettings = appSettingsOptions;
 
         // DTO to model mapping setup
         var mapperConfig = new MapperConfiguration(cfg =>
         {
-            cfg.CreateMap<EVCRequestDTO, EVC>().ReverseMap();
-            cfg.CreateMap<EVCVerifyDTO, EVC>().ReverseMap();
+            cfg.CreateMap<EvcRequestDto, Evc>().ReverseMap();
+            cfg.CreateMap<EvcVerifyDto, Evc>().ReverseMap();
         });
 
         _mapper = mapperConfig.CreateMapper();
     }
 
-    public async Task<string> GenerateEmailVerificationCode(EVCRequestDTO evcRequestDto, string userId)
+    public async Task<string> GenerateEmailVerificationCode(EvcRequestDto evcRequestDto, string userId)
     {
-        var evc = EVCGenerator.GenerateEVC();
-        var evcModel = _mapper.Map<EVC>(evcRequestDto);
+        var evc = EvcGenerator.GenerateEvc();
+        var evcModel = _mapper.Map<Evc>(evcRequestDto);
 
-        evcModel.Evc = evc;
+        evcModel.EvcReq = evc;
         evcModel.UserId = userId;
 
         evcModel.ExpiryTime = DateTime.UtcNow.AddMinutes(10);
@@ -46,7 +47,7 @@ public class EmailVerificationService : IEmailVerificationService
         Console.Write("EVC Expiry Time: " + evcModel.ExpiryTime + "\n");
 
 
-        var filter = Builders<EVC>.Filter.Eq("UserId", userId);
+        var filter = Builders<Evc>.Filter.Eq("UserId", userId);
 
         Console.Write("Filter Created");
 
@@ -55,25 +56,25 @@ public class EmailVerificationService : IEmailVerificationService
         if (evcFromDatabase != null)
         {
             Console.Write("EVC from database is not null");
-            _evcCollection.ReplaceOneAsync(filter, evcModel);
+            await _evcCollection.ReplaceOneAsync(filter, evcModel);
         }
         else
         {
             Console.Write("EVC from database is null");
-            _evcCollection.InsertOneAsync(evcModel);
+            await _evcCollection.InsertOneAsync(evcModel);
         }
 
         return "EVC sent to email and stored in the DB";
     }
 
-    public Task<string> VerifyEmail(EVCVerifyDTO evcVerifyDto, string userId)
+    public Task<string> VerifyEmail(EvcVerifyDto evcVerifyDto, string userId)
     {
-        var filter = Builders<EVC>.Filter.Eq("UserId", userId);
+        var filter = Builders<Evc>.Filter.Eq("UserId", userId);
         var evcFromDatabase = _evcCollection.Find(filter).FirstOrDefault();
 
         if (evcFromDatabase == null) return Task.FromResult("No EVC found for this user");
 
-        if (evcFromDatabase.Evc != evcVerifyDto.verificationcode) return Task.FromResult("EVC does not match");
+        if (evcFromDatabase.EvcReq != evcVerifyDto.VerificationCode) return Task.FromResult("EVC does not match");
 
         if (evcFromDatabase.ExpiryTime < DateTime.UtcNow) return Task.FromResult("EVC has expired");
 

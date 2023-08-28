@@ -1,4 +1,5 @@
 using AutoMapper;
+using Ayura.API.Configuration;
 using Ayura.API.Features.Profile.DTOs;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
@@ -22,22 +23,23 @@ public class ProfileRetrieveService : IProfileRetrieveService
         _appSettings = appSettingsOptions; // Assign the appSettingsOptions to the field
 
         // DTO to model mapping setup
-        var mapperConfig = new MapperConfiguration(cfg => { cfg.CreateMap<User, ProfileDetailsDTO>().ReverseMap(); });
+        var mapperConfig = new MapperConfiguration(cfg => { cfg.CreateMap<User, ProfileDetailsDto>().ReverseMap(); });
 
         _mapper = mapperConfig.CreateMapper();
     }
 
-    public async Task<ProfileDetailsDTO> RetrieveProfileDetails(string id)
+    public async Task<ProfileDetailsDto> RetrieveProfileDetails(string id)
     {
         var filter = Builders<User>.Filter.Eq("Id", id);
         var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
 
         if (user == null)
+        {
             // Handle the case where the user with the given email is not found
             return null;
-
+        }
         // Map the User model to ProfileDetailsDTO
-        var profileDetails = _mapper.Map<ProfileDetailsDTO>(user);
+        var profileDetails = _mapper.Map<ProfileDetailsDto>(user);
         /*return user;*/
         return profileDetails;
     }

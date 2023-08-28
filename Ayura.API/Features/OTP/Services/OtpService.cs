@@ -1,6 +1,8 @@
 using AutoMapper;
+using Ayura.API.Configuration;
 using Ayura.API.Features.OTP.DTOs;
 using Ayura.API.Features.OTP.Helpers;
+using Ayura.API.Features.OTP.Models;
 using Ayura.API.Features.OTP.Services;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
@@ -13,35 +15,35 @@ public class OtpService : IOtpService
 {
     private readonly IOptions<AppSettings> _appSettings;
     private readonly IMapper _mapper;
-    private readonly IMongoCollection<OTP> _otpCollection;
+    private readonly IMongoCollection<Otp> _otpCollection;
 
     public OtpService(IAppSettings appSettings, IAyuraDatabaseSettings settings, IMongoClient mongoClient,
         IOptions<AppSettings> appSettingsOptions)
     {
         // database and collections setup
         var database = mongoClient.GetDatabase(settings.DatabaseName);
-        _otpCollection = database.GetCollection<OTP>(settings.OtpCollection);
+        _otpCollection = database.GetCollection<Otp>(settings.OtpCollection);
         _appSettings = appSettingsOptions;
 
         // DTO to model mapping setup
         var mapperConfig = new MapperConfiguration(cfg =>
         {
-            cfg.CreateMap<OtpRequestDTO, OTP>().ReverseMap();
-            cfg.CreateMap<OtpVerifierDTO, OTP>().ReverseMap();
+            cfg.CreateMap<OtpRequestDto, Otp>().ReverseMap();
+            cfg.CreateMap<OtpVerifierDto, Otp>().ReverseMap();
         });
 
         _mapper = mapperConfig.CreateMapper();
     }
 
-    public Task<string> GenerateOtp(OtpRequestDTO otpRequestDTO)
+    public Task<string> GenerateOtp(OtpRequestDto otpRequestDTO)
     {
         var otp = OtpGenerator.GenerateOtp();
 
         // mapping the otpRequestDTO to OTP model 
-        var otpModel = _mapper.Map<OTP>(otpRequestDTO);
+        var otpModel = _mapper.Map<Otp>(otpRequestDTO);
 
         // save the otp to the model
-        otpModel.Otp = otp;
+        otpModel.OtpNum = otp;
 
         // set the expiry time
         otpModel.ExpiryTime = DateTime.UtcNow.AddMinutes(10);
@@ -49,7 +51,7 @@ public class OtpService : IOtpService
         Console.Write("OTP Expiry Time: " + otpModel.ExpiryTime + "\n");
 
         // if mobile number exists in otp database, replace otp
-        var filter = Builders<OTP>.Filter.Eq("MobileNumber", otpModel.MobileNumber);
+        var filter = Builders<Otp>.Filter.Eq("MobileNumber", otpModel.MobileNumber);
 
         // if the mobile number exists, replace the otp
         var otpFromDatabase = _otpCollection.Find(filter).FirstOrDefault();
@@ -68,22 +70,22 @@ public class OtpService : IOtpService
         return Task.FromResult("Otp sent successfully");
     }
 
-    public Task<string> VerifyOtp(OtpVerifierDTO otpVerifierDTO)
+    public Task<string> VerifyOtp(OtpVerifierDto otpVerifierDto)
     {
         // mapping the otpVerifierDTO to OTP model
-        var otpModel = _mapper.Map<OTP>(otpVerifierDTO);
+        var otpModel = _mapper.Map<Otp>(otpVerifierDto);
 
         // check if an otp exists for the given mobileNumber
-        var filter = Builders<OTP>.Filter.Eq("MobileNumber", otpModel.MobileNumber);
+        var filter = Builders<Otp>.Filter.Eq("MobileNumber", otpModel.MobileNumber);
 
         // get the otp from the database
         var otp = _otpCollection.Find(filter).FirstOrDefault();
         Console.Write("OTP Expiry Time: " + otp.ExpiryTime + "\n");
         // compare the otp
-        if (otp.Otp == null)
+        if (otp.OtpNum == null)
             // otp does not exist
             return Task.FromResult("Otp does not exist");
-        if (otp.Otp != otpModel.Otp)
+        if (otp.OtpNum != otpModel.OtpNum)
             // otp does not match
             return Task.FromResult("Otp does not match");
         if (otp.ExpiryTime < DateTime.UtcNow)

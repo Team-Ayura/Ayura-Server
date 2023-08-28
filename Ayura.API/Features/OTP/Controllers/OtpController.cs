@@ -16,17 +16,17 @@ public class OtpController : Controller
 
     // POST
     [HttpPost("generate")]
-    public async Task<IActionResult> Generate([FromBody] OtpRequestDTO otpRequestDTO)
+    public async Task<IActionResult> Generate([FromBody] OtpRequestDto otpRequestDto)
     {
-        var result = await _otpService.GenerateOtp(otpRequestDTO);
+        var result = await _otpService.GenerateOtp(otpRequestDto);
         return Ok(result);
     }
 
     // POST
     [HttpPost("verify")]
-    public async Task<IActionResult> Verify([FromBody] OtpVerifierDTO otpVerifierDTO)
+    public async Task<IActionResult> Verify([FromBody] OtpVerifierDto otpVerifierDto)
     {
-        var result = await _otpService.VerifyOtp(otpVerifierDTO);
+        var result = await _otpService.VerifyOtp(otpVerifierDto);
         return Ok(result);
     }
 }

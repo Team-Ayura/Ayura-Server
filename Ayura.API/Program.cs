@@ -1,4 +1,5 @@
 using System.Text;
+using Ayura.API.Configuration;
 using Ayura.API.Features.EmailVerification.Services;
 using Ayura.API.Features.OTP.Services;
 using Ayura.API.Features.Profile.Services;

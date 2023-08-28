@@ -1,4 +1,5 @@
 using AutoMapper;
+using Ayura.API.Configuration;
 using Ayura.API.Features.Profile.DTOs;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
@@ -24,14 +25,14 @@ public class ProfileUpdateService : IProfileUpdateService
         // DTO to model mapping setup
         var mapperConfig = new MapperConfiguration(cfg =>
         {
-            cfg.CreateMap<User, ProfileDetailsDTO>();
-            cfg.CreateMap<UpdateDetailsDTO, User>();
+            cfg.CreateMap<User, ProfileDetailsDto>();
+            cfg.CreateMap<UpdateDetailsDto, User>();
         });
 
         _mapper = mapperConfig.CreateMapper();
     }
 
-    public async Task<ProfileDetailsDTO> UpdateProfileDetails(string id, UpdateDetailsDTO updateDetailsDto)
+    public async Task<ProfileDetailsDto> UpdateProfileDetails(string id, UpdateDetailsDto updateDetailsDto)
     {
         Console.Write("Function in the Service is called\n");
         Console.Write($"First Name: {updateDetailsDto.FirstName}\n");
@@ -56,7 +57,7 @@ public class ProfileUpdateService : IProfileUpdateService
         await _userCollection.ReplaceOneAsync(filter, user);
 
         // Map the User model to ProfileDetailsDTO
-        var profileDetails = _mapper.Map<ProfileDetailsDTO>(user);
+        var profileDetails = _mapper.Map<ProfileDetailsDto>(user);
 
         /*return user;*/
         return profileDetails;

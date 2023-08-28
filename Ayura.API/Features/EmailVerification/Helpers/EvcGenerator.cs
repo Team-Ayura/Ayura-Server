@@ -1,9 +1,9 @@
 namespace Ayura.API.Features.EmailVerification.Helpers;
 
 // Generate a random string of length 8
-public class EVCGenerator
+public class EvcGenerator
 {
-    public static string GenerateEVC()
+    public static string GenerateEvc()
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst0123456789";
         var random = new Random();
