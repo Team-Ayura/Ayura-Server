@@ -19,12 +19,13 @@ public class EmailVerificationService : IEmailVerificationService
     private readonly IMailService _mailService;
 
     public EmailVerificationService(IAppSettings appSettings, IAyuraDatabaseSettings settings,
-        IMongoClient mongoClient, IOptions<AppSettings> appSettingsOptions)
+        IMongoClient mongoClient, IOptions<AppSettings> appSettingsOptions, IOptions<MailSettings> mailSettingsOptions)
     {
         // database and collections setup
         var database = mongoClient.GetDatabase(settings.DatabaseName);
         _evcCollection = database.GetCollection<Evc>(settings.EvcCollection);
         _appSettings = appSettingsOptions;
+        _mailService = new MailService(mailSettingsOptions);
 
         // DTO to model mapping setup
         var mapperConfig = new MapperConfiguration(cfg =>
@@ -32,6 +33,7 @@ public class EmailVerificationService : IEmailVerificationService
             cfg.CreateMap<EvcRequestDto, Evc>().ReverseMap();
             cfg.CreateMap<EvcVerifyDto, Evc>().ReverseMap();
         });
+        
 
         _mapper = mapperConfig.CreateMapper();
     }
@@ -46,27 +48,38 @@ public class EmailVerificationService : IEmailVerificationService
 
         evcModel.ExpiryTime = DateTime.UtcNow.AddMinutes(10);
 
-        Console.Write("EVC Expiry Time: " + evcModel.ExpiryTime + "\n");
+        // Console.Write("EVC Expiry Time: " + evcModel.ExpiryTime + "\n");
 
 
         var filter = Builders<Evc>.Filter.Eq("UserId", userId);
 
-        Console.Write("Filter Created\n");
+        // Console.Write("Filter Created\n");
 
         var evcFromDatabase = _evcCollection.Find(filter).FirstOrDefault();
 
         if (evcFromDatabase != null)
         {
-            Console.Write("EVC from database is not null\n");
+            // Console.Write("EVC from database is not null\n");
             await _evcCollection.ReplaceOneAsync(filter, evcModel);
         }
         else
         {
-            Console.Write("EVC from database is null");
+            // Console.Write("EVC from database is null");
             await _evcCollection.InsertOneAsync(evcModel);
         }
 
-        Console.Write("EVC inserted into database\n");
+        // Console.Write("EVC inserted into database\n");
+        
+        // Send Email
+        var mailData = new MailData
+        {
+            EmailToId = evcRequestDto.Email,
+            EmailToName = evcRequestDto.Email,
+            EmailSubject = "Ayura Email Verification Code",
+            EmailBody = "Your email verification code is: " + evc
+        };
+        
+        await _mailService.SendMailAsync(mailData);
 
         // return that it was successful
         return "EVC generated";
