@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Ayura.API.Features.Profile.Helpers;
 
-public class ResolveJWT
+public class ResolveJwt
 {
     public static string ResolveIdFromJWT(HttpRequest request)
     {

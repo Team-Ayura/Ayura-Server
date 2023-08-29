@@ -2,6 +2,8 @@ using Ayura.API.Features.Community.DTOs;
 using Ayura.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using CommunityModel = Ayura.API.Models.Community; // Create an alias for the type
+using PostModel = Ayura.API.Models.Post; // Create an alias for the type
+using CommentModel = Ayura.API.Models.Comment; // Create an alias for the type
 
 namespace Ayura.API.Features.Community.Controllers;
 
@@ -10,10 +12,17 @@ namespace Ayura.API.Features.Community.Controllers;
 public class CommunitiesController : Controller
 {
     private readonly CommunityService _communityService; // Getting Service
+    private readonly PostService _postService;
+    private readonly CommentService _commentService;
 
     // Community Service is injected on to the controller
     // This is Constructor as an arrow function
-    public CommunitiesController(CommunityService communityService) => _communityService = communityService;
+    public CommunitiesController(CommunityService communityService, PostService postService, CommentService commentService) {
+        _communityService = communityService;
+        _postService = postService;
+        _commentService = commentService;
+        
+    }
 
 
     // From here onwards methods
@@ -103,4 +112,158 @@ public class CommunitiesController : Controller
         
         return Ok(new { Message = "Member Added successfully." });
     }
+    
+    //7. Get all posts of a community
+    [HttpGet("posts/{communityId:length(24)}")]
+    public async Task<IActionResult> GetCommunityPosts(string communityId)
+    {
+        try
+        {
+            var existingCommunity = await _communityService.GetCommunities(communityId);
+            if (existingCommunity is null)
+            {
+                return NotFound(new { Message = "Community not found." });
+            }
+
+            var allPosts = await _postService.GetPosts(communityId);
+            return Ok(allPosts);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception and return an appropriate error response
+            return StatusCode(500, new { Message = "An error occurred while processing your request." });
+        }
+    }
+    
+    // 2. GET a post by ID
+    [HttpGet("post/{id:length(24)}")] // Constraint to check whether it has 24 chars
+    public async Task<IActionResult> GetPost(string id)
+    {
+        var existingPost = await _postService.GetPost(id);
+        if (existingPost is null)
+        {
+            return NotFound(new { Message = "Post not found." });
+        }
+
+        return Ok(existingPost);
+    }
+    
+    //8.Adding a post to community
+    [HttpPost("post")]
+    public async Task<IActionResult> CreatePost(PostModel post)
+    {
+        try{
+            var existingCommunity = await _communityService.GetCommunities(post.CommunityId);
+            if (existingCommunity is null)
+            {
+                return NotFound(new { Message = "Community not found." });
+            }
+
+            var createdPost = await _postService.CreatePost(post);
+            return CreatedAtAction("Get", new { id = createdPost.Id }, createdPost);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception and return an appropriate error response
+            return StatusCode(500, new { Message = "An error occurred while processing your request." });
+        }
+    }
+
+    //9.Edit post
+    [HttpPut("post/{id:length(24)}")]
+    public async Task<IActionResult> UpdatePost(string id, PostModel updatedPost)
+    {
+        //Get the post from DB
+        var existingPost = await _postService.GetPost(id);
+
+        if (existingPost is null)
+        {
+            return NotFound(new { Message = "Post not found." });
+        }
+
+        updatedPost.Id = existingPost.Id;
+        // Since this call Company Model the CommentList will be an empty String
+        // Preserve old MembersList
+        updatedPost.Comments = existingPost.Comments;
+        await _postService.UpdatePost(updatedPost);
+        
+        // Create the response object
+        var response = new
+        {
+            Message = "Post updated successfully.",
+            Post = updatedPost // Include the updated community
+        };
+
+        return Ok(response);
+    }
+    
+    //10. delete post 
+    [HttpDelete("post/{id:length(24)}")]
+    public async Task<IActionResult> DeletePost(string id)
+    {
+       
+        try
+        {
+            var existingPost = await _postService.GetPost(id);
+        
+            if (existingPost == null)
+            {
+                return NotFound("Post not found.");
+            }
+
+            await _postService.DeletePost(id);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred");
+        }
+    }
+    
+    //11. create comment
+    [HttpPost("comment")]
+    public async Task<IActionResult> AddComment(CommentModel comment)
+    {
+        var createdComment = await _commentService.CreateComment(comment);
+        return CreatedAtAction("Get", new { id = createdComment.Id }, createdComment);
+    }
+    
+    //12. edit comment
+    [HttpPut("comment")]
+    public async Task<IActionResult> EditComment(CommentModel updatedComment)
+    {
+        try
+        {
+            await _commentService.UpdateComment(updatedComment);
+            return Ok("Comment updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+    
+    //13. delete comment 
+    [HttpDelete("comment/{id:length(24)}")]
+    public async Task<IActionResult> DeleteComment(string id)
+    {
+       
+        try
+        {
+            var existingComment = await _commentService.GetComment(id);
+        
+            if (existingComment == null)
+            {
+                return NotFound("Comment not found.");
+            }
+
+            await _commentService.DeleteComment(id);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred");
+        }
+    }
+    
 }

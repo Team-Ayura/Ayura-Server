@@ -1,3 +1,4 @@
+using Ayura.API.Global.MailService.DTOs_;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ayura.API.Features.Profile.Helpers.MailService;

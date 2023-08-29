@@ -4,6 +4,7 @@ using Ayura.API.Features.EmailVerification.Services;
 using Ayura.API.Features.OTP.Services;
 using Ayura.API.Features.Profile.Helpers.MailService;
 using Ayura.API.Features.Profile.Services;
+using Ayura.API.Global.MailService.Configuration;
 using Ayura.API.Models.Configuration;
 using Ayura.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,7 +36,12 @@ builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>(
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 
 //Injecting Community Service
-builder.Services.AddSingleton<CommunityService>();
+builder.Services.AddScoped<CommunityService>();
+
+builder.Services.AddScoped<PostService>();
+
+//Injecting Comment Service
+builder.Services.AddScoped<CommentService>();
 
 
 // Mail Settings
