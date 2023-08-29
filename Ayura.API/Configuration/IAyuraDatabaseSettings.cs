@@ -6,6 +6,8 @@ public interface IAyuraDatabaseSettings
     public string OtpCollection { get; set; }
     public string EvcCollection { get; set; }
     public string CommunityCollection { get; set; } // COmmunityCollection
+    public string PostCollection { get; set; }
+    public string CommentCollection { get; set; } //commentCollection
     public string DatabaseName { get; set; }
     public string ConnectionString { get; set; }
 }

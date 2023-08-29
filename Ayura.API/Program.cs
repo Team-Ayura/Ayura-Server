@@ -35,7 +35,12 @@ builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>(
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 
 //Injecting Community Service
-builder.Services.AddSingleton<CommunityService>();
+builder.Services.AddScoped<CommunityService>();
+
+builder.Services.AddScoped<PostService>();
+
+//Injecting Comment Service
+builder.Services.AddScoped<CommentService>();
 
 
 // Mail Settings
