@@ -16,7 +16,7 @@ public class EmailVerificationService : IEmailVerificationService
     private readonly IOptions<AppSettings> _appSettings;
     private readonly IMongoCollection<Evc> _evcCollection;
     private readonly IMapper _mapper;
-    private readonly IMailService _mailService;
+    // private readonly IMailService _mailService;
 
     public EmailVerificationService(IAppSettings appSettings, IAyuraDatabaseSettings settings,
         IMongoClient mongoClient, IOptions<AppSettings> appSettingsOptions, IOptions<MailSettings> mailSettingsOptions)

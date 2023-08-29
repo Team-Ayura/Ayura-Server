@@ -1,4 +1,7 @@
-namespace Ayura.API.Features.Profile.Helpers.MailService;
+using Ayura.API.Features.Profile.Helpers.MailService;
+using Ayura.API.Global.MailService.DTOs_;
+
+namespace Ayura.API.Global.MailService;
 
 public class BaseMailBuilder : IMailBuilder
 {
