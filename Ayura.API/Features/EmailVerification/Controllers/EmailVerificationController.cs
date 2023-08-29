@@ -17,13 +17,13 @@ public class EmailVerificationController : Controller
     }
 
     [HttpPost("generate")]
-    public IActionResult GenerateEmailVerification([FromBody] EvcRequestDto evcodeRequest)
+    public async Task<IActionResult> GenerateEmailVerification([FromBody] EvcRequestDto evcodeRequest)
     {
         var userId = ResolveJWT.ResolveIdFromJWT(Request);
         // if user is not logged in, return 401
         if (userId == null) return Unauthorized();
         Console.Write($"ID is {userId}\n");
-        var result = _emailVerificationService.GenerateEmailVerificationCode(evcodeRequest, userId);
+        var result = await _emailVerificationService.GenerateEmailVerificationCode(evcodeRequest, userId);
         return Ok(result);
     }
 

@@ -51,13 +51,13 @@ public class EmailVerificationService : IEmailVerificationService
 
         var filter = Builders<Evc>.Filter.Eq("UserId", userId);
 
-        Console.Write("Filter Created");
+        Console.Write("Filter Created\n");
 
         var evcFromDatabase = _evcCollection.Find(filter).FirstOrDefault();
 
         if (evcFromDatabase != null)
         {
-            Console.Write("EVC from database is not null");
+            Console.Write("EVC from database is not null\n");
             await _evcCollection.ReplaceOneAsync(filter, evcModel);
         }
         else
@@ -66,7 +66,10 @@ public class EmailVerificationService : IEmailVerificationService
             await _evcCollection.InsertOneAsync(evcModel);
         }
 
-        return "EVC sent to email and stored in the DB";
+        Console.Write("EVC inserted into database\n");
+
+        // return that it was successful
+        return "EVC generated";
     }
 
     public Task<string> VerifyEmail(EvcVerifyDto evcVerifyDto, string userId)
