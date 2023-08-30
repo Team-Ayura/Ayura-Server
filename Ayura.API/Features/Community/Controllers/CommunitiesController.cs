@@ -130,6 +130,7 @@ public class CommunitiesController : Controller
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             // Log the exception and return an appropriate error response
             return StatusCode(500, new { Message = "An error occurred while processing your request." });
         }
@@ -164,6 +165,7 @@ public class CommunitiesController : Controller
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             // Log the exception and return an appropriate error response
             return StatusCode(500, new { Message = "An error occurred while processing your request." });
         }

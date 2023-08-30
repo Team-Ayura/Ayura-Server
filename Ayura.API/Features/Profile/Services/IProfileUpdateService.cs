@@ -4,5 +4,5 @@ namespace Ayura.API.Features.Profile.Services;
 
 public interface IProfileUpdateService
 {
-    Task<ProfileDetailsDto> UpdateProfileDetails(string email, UpdateDetailsDto updateDetails);
+    Task<ProfileDetailsDto?> UpdateProfileDetails(string? email, UpdateDetailsDto updateDetails);
 }

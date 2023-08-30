@@ -50,6 +50,7 @@ public class MailService : IMailService
         catch (Exception ex)
         {
             // Exception Details
+            Console.WriteLine(ex.Message);
             return false;
         }
     }

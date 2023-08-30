@@ -32,7 +32,7 @@ public class ProfileUpdateService : IProfileUpdateService
         _mapper = mapperConfig.CreateMapper();
     }
 
-    public async Task<ProfileDetailsDto> UpdateProfileDetails(string id, UpdateDetailsDto updateDetailsDto)
+    public async Task<ProfileDetailsDto?> UpdateProfileDetails(string? id, UpdateDetailsDto updateDetailsDto)
     {
         Console.Write("Function in the Service is called\n");
         Console.Write($"First Name: {updateDetailsDto.FirstName}\n");

@@ -82,7 +82,7 @@ public class EmailVerificationService : IEmailVerificationService
         return "EVC sent via email\n";
     }
 
-    public Task<string> VerifyEmail(EvcVerifyDto evcVerifyDto, string userId)
+    public Task<string> VerifyEmail(EvcVerifyDto evcVerifyDto, string? userId)
     {
         var filter = Builders<Evc>.Filter.Eq("UserId", userId);
         var evcFromDatabase = _evcCollection.Find(filter).FirstOrDefault();
