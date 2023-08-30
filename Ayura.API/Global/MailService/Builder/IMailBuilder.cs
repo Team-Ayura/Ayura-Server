@@ -1,4 +1,4 @@
-using Ayura.API.Global.MailService.DTOs_;
+using Ayura.API.Global.MailService.DTOs;
 
 namespace Ayura.API.Features.Profile.Helpers.MailService;
 

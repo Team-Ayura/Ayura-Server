@@ -2,8 +2,8 @@ using AutoMapper;
 using Ayura.API.Configuration;
 using Ayura.API.Features.EmailVerification.DTOs;
 using Ayura.API.Features.EmailVerification.Helpers;
-using Ayura.API.Features.EmailVerification.Services;
 using Ayura.API.Features.Profile.Helpers.MailService;
+using Ayura.API.Global.MailService.DTOs;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
 using Microsoft.Extensions.Options;
@@ -16,16 +16,16 @@ public class EmailVerificationService : IEmailVerificationService
     private readonly IOptions<AppSettings> _appSettings;
     private readonly IMongoCollection<Evc> _evcCollection;
     private readonly IMapper _mapper;
-    // private readonly IMailService _mailService;
+    private readonly IMailService _mailService;
 
     public EmailVerificationService(IAppSettings appSettings, IAyuraDatabaseSettings settings,
-        IMongoClient mongoClient, IOptions<AppSettings> appSettingsOptions, IOptions<MailSettings> mailSettingsOptions)
+        IMongoClient mongoClient, IOptions<AppSettings> appSettingsOptions, IMailService mailService)
     {
         // database and collections setup
         var database = mongoClient.GetDatabase(settings.DatabaseName);
         _evcCollection = database.GetCollection<Evc>(settings.EvcCollection);
         _appSettings = appSettingsOptions;
-        _mailService = new MailService(mailSettingsOptions);
+        _mailService = mailService;
 
         // DTO to model mapping setup
         var mapperConfig = new MapperConfiguration(cfg =>
@@ -67,8 +67,6 @@ public class EmailVerificationService : IEmailVerificationService
             // Console.Write("EVC from database is null");
             await _evcCollection.InsertOneAsync(evcModel);
         }
-
-        // Console.Write("EVC inserted into database\n");
         
         // Send Email
         var mailData = new MailData
@@ -80,9 +78,8 @@ public class EmailVerificationService : IEmailVerificationService
         };
         
         await _mailService.SendMailAsync(mailData);
-
-        // return that it was successful
-        return "EVC generated";
+        
+        return "EVC sent via email\n";
     }
 
     public Task<string> VerifyEmail(EvcVerifyDto evcVerifyDto, string userId)

@@ -1,6 +1,8 @@
 using Ayura.API.Features.Profile.DTOs;
 using Ayura.API.Features.Profile.Helpers;
 using Ayura.API.Features.Profile.Services;
+using Ayura.API.Global;
+using Ayura.API.Global.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ayura.API.Features.Profile.Controllers;
@@ -21,7 +23,7 @@ public class ProfileController : ControllerBase
     [HttpGet("details")]
     public async Task<IActionResult> GetProfileDetails()
     {
-        var _userId = ResolveJwt.ResolveIdFromJWT(Request);
+        var _userId = ResolveJwt.ResolveIdFromJwt(Request);
 
         try
         {
@@ -46,7 +48,7 @@ public class ProfileController : ControllerBase
     [HttpPut("update")]
     public async Task<IActionResult> UpdateProfileDetails([FromBody] UpdateDetailsDto updateDetailsDto)
     {
-        var _userId = ResolveJwt.ResolveIdFromJWT(Request);
+        var _userId = ResolveJwt.ResolveIdFromJwt(Request);
 
         try
         {
