@@ -26,11 +26,11 @@ public class CommunitiesController : Controller
 
 
     // From here onwards methods
-    // 1. GET ALL Communities
+    // 1. GET ALL PUBLIC Communities
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        var allCommunities = await _communityService.GetCommunities();
+        var allCommunities = await _communityService.GetPublicCommunities();
         if (allCommunities.Any()) //Check whether there are any drivers in the collection
         {
             return Ok(allCommunities);
@@ -39,17 +39,38 @@ public class CommunitiesController : Controller
         return NotFound(new { Message = "No Communities Found" });
     }
 
-    // 2. GET a community by ID
-    [HttpGet("{id:length(24)}")] // Constraint to check whether it has 24 chars
-    public async Task<IActionResult> Get(string id)
+    // 2. GET a community by ID 
+    [HttpGet("{communityId:length(24)}")] // Constraint to check whether it has 24 chars
+    public async Task<IActionResult> Get(string communityId)
     {
-        var existingCommunity = await _communityService.GetCommunities(id);
+        var existingCommunity = await _communityService.GetCommunityById(communityId);
         if (existingCommunity is null)
         {
             return NotFound(new { Message = "Community not found." });
         }
 
         return Ok(existingCommunity);
+    }
+
+    // 3.  Get user joined communities 
+    [HttpGet("joined/{userId:length(24)}")] // Constraint to check whether it has 24 chars
+    public async Task<IActionResult> GetJoinedCommunities(string userId)
+    {
+        var joinedCommunities = await _communityService.GetJoinedCommunities(userId);
+        if (joinedCommunities.Any())
+        {
+            return Ok(new
+            {
+                Message = "Community user joined",
+                communities = joinedCommunities
+            });
+        }
+
+        // Handle the case when the user is not found or has no joined communities.
+        return NotFound(new
+        {
+            Message = "there are no joined communities or the user is not found."
+        });
     }
 
     // 3. Create a Community
@@ -61,11 +82,11 @@ public class CommunitiesController : Controller
     }
 
     // 4. Update a Community
-    [HttpPut("{id:length(24)}")]
-    public async Task<IActionResult> UpdateCommunity(string id, CommunityModel updatedCommunity)
+    [HttpPut("{communityId:length(24)}")]
+    public async Task<IActionResult> UpdateCommunity(string communityId, CommunityModel updatedCommunity)
     {
         //Get the community from DB
-        var existingCommunity = await _communityService.GetCommunities(id);
+        var existingCommunity = await _communityService.GetCommunityById(communityId);
 
         if (existingCommunity is null)
         {
@@ -86,31 +107,36 @@ public class CommunitiesController : Controller
             Community = updatedCommunity // Include the updated community
         };
 
-        return Ok(response);
+        return Ok(updatedCommunity);
     }
 
     // 5. Delete a community
-    [HttpDelete("{id:length(24)}")]
-    public async Task<IActionResult> Delete(string id)
+    [HttpDelete("{communityId:length(24)}")]
+    public async Task<IActionResult> Delete(string communityId)
     {
-        var existingCommunity = await _communityService.GetCommunities(id);
+        var existingCommunity = await _communityService.GetCommunityById(communityId);
 
         if (existingCommunity is null)
         {
             return NotFound(new { Message = "Community not found." });
         }
 
-        await _communityService.DeleteCommunity(id);
-        return NoContent();
+        await _communityService.DeleteCommunity(existingCommunity);
+        return Ok(new
+        {
+            Message = "Community deleted successfully.",
+        });
     }
 
     //6. Adding a member to Community
     [HttpPut("addMember")]
     public async Task<IActionResult> AddMember([FromBody] MemberRequest memberRequest)
     {
-        await _communityService.AddMember(memberRequest.CommunityId, memberRequest.UserId);
-        
-        return Ok(new { Message = "Member Added successfully." });
+        var community = await _communityService.AddMember(memberRequest.CommunityId, memberRequest.UserId);
+
+        return community.Id == null
+            ? NotFound(new { Message = "Member is already added" })
+            : Ok(new { Message = "Member Added successfully.", Community = community });
     }
     
     //7. Get all posts of a community
@@ -119,7 +145,7 @@ public class CommunitiesController : Controller
     {
         try
         {
-            var existingCommunity = await _communityService.GetCommunities(communityId);
+            var existingCommunity = await _communityService.GetCommunityById(communityId);
             if (existingCommunity is null)
             {
                 return NotFound(new { Message = "Community not found." });
@@ -154,7 +180,7 @@ public class CommunitiesController : Controller
     public async Task<IActionResult> CreatePost(PostModel post)
     {
         try{
-            var existingCommunity = await _communityService.GetCommunities(post.CommunityId);
+            var existingCommunity = await _communityService.GetCommunityById(post.CommunityId);
             if (existingCommunity is null)
             {
                 return NotFound(new { Message = "Community not found." });

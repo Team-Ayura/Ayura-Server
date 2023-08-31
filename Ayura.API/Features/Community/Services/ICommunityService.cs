@@ -6,11 +6,11 @@ namespace Ayura.API.Services;
 
 public interface ICommunityService
 {
-    // 1. Get all communities
-    Task<List<Community>> GetCommunities();
+    // 1. Get all Public communities
+    Task<List<Community>> GetPublicCommunities();
 
     // 2. Get a community by Id
-    Task<Community> GetCommunities(string id);
+    Task<Community> GetCommunityById(string id);
 
     // 3. Create a Community
     Task<Community> CreateCommunity(Community community);
@@ -19,8 +19,8 @@ public interface ICommunityService
     Task UpdateCommunity(Community community);
 
     // 5. Delete a community
-    Task DeleteCommunity(string id);
+    Task DeleteCommunity(Community community);
 
     // 6. Add a member
-    Task AddMember(string communityId, string userId);
+    Task<Community> AddMember(string communityId, string userId);
 }

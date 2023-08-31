@@ -3,7 +3,6 @@ using Ayura.API.Models;
 using MongoDB.Driver;
 using Ayura.API.Models.Configuration;
 using AutoMapper;
-using MongoDB.Bson;
 
 
 namespace Ayura.API.Services;
@@ -11,6 +10,7 @@ namespace Ayura.API.Services;
 public class CommunityService : ICommunityService
 {
     private readonly IMongoCollection<Community> _communityCollection;
+    private readonly IMongoCollection<User> _userCollection;
     private readonly IMapper _mapper;
 
     public CommunityService(IAyuraDatabaseSettings settings, IMongoClient mongoClient)
@@ -18,21 +18,52 @@ public class CommunityService : ICommunityService
         // database and collections setup
         var database = mongoClient.GetDatabase(settings.DatabaseName);
         _communityCollection = database.GetCollection<Community>(settings.CommunityCollection);
-
+        _userCollection = database.GetCollection<User>(settings.UserCollection);
         // DTO to model mapping setup
         var mapperConfig = new MapperConfiguration(cfg => { cfg.CreateMap<CommunityDto, Community>(); });
 
         _mapper = mapperConfig.CreateMapper();
     }
 
-    // 1. Get All Communities - Note : Need to use userId to filter out the communities only User joined
-    public async Task<List<Community>> GetCommunities() => await _communityCollection.Find(_ => true).ToListAsync();
+    // 1. Get All PUBLIC Communities 
+    public async Task<List<Community>> GetPublicCommunities()
+    {
+        var filter = Builders<Community>.Filter.Eq(c => c.IsPublic, true);
+        return await _communityCollection.Find(filter).ToListAsync();
+    }
 
     // 2. Get a community by Id
-    public async Task<Community> GetCommunities(string id) =>
-        await _communityCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
+    public async Task<Community> GetCommunityById(string id)
+    {
+        return await _communityCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
+    }
 
-    // 3. Create a Community
+    // 3. Get all the user Joined communities
+    public async Task<List<Community>> GetJoinedCommunities(string userId)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            // Handle the case when the user is not found or has no joined communities
+            return new List<Community>();
+        }
+
+        var joinedCommunityIds = user.JoinedCommunities;
+
+        // Convert Community Ids to strings
+        var joinedCommunityIdStrings = joinedCommunityIds.Select(id => id.ToString());
+
+        var communityFilter = Builders<Community>.Filter.In(c => c.Id, joinedCommunityIdStrings);
+
+        var joinedCommunities = await _communityCollection.Find(communityFilter).ToListAsync();
+
+        return joinedCommunities;
+    }
+
+
+    // 4. Create a Community
     public async Task<Community> CreateCommunity(Community community)
     {
         // Insert the community into the database
@@ -41,44 +72,78 @@ public class CommunityService : ICommunityService
         return community;
     }
 
-    // 4. Update a Community
+    // 5. Update a Community
     // If the ID is matched the DB.community which is c , it will be replaced by the community
     public async Task UpdateCommunity(Community updatedCommunity)
     {
         // Retrieve the community by its ID
         var filter = Builders<Community>.Filter.Eq(c => c.Id, updatedCommunity.Id);
         var existingCommunity = await _communityCollection.Find(filter).FirstOrDefaultAsync();
-        // => await _communityCollection.ReplaceOneAsync(c => c.Id == community.Id, community);
-        
         if (existingCommunity != null)
         {
             // Preserve the existing Members list in the updatedCommunity
             updatedCommunity.Members = existingCommunity.Members;
-            
+
             // Update the community in the database
             await _communityCollection.ReplaceOneAsync(filter, updatedCommunity);
         }
-        
     }
 
-    // 5. Delete a Community
-    public async Task DeleteCommunity(string id) =>
-        await _communityCollection.DeleteOneAsync(c => c.Id == id);
-
-    // 6. Add a member/user to the community
-    public async Task AddMember(string communityId, string userId)
+    // 6. Delete a Community
+    public async Task DeleteCommunity(Community community)
     {
-        // Retrieve the community by its ID
-        var filter = Builders<Community>.Filter.Eq(c => c.Id, communityId);
-        var community = await _communityCollection.Find(filter).FirstOrDefaultAsync();
+        // Step 1 - Find users who have joined the community using members[] in community document
+        var usersWhoJoinedCommunity = await _userCollection
+            .Find(u => u.JoinedCommunities.Contains(community.Id))
+            .ToListAsync();
 
-       var userIdObjectId = ObjectId.Parse(userId);
+        // Step 2 - Remove the communityId from the joinedCommunities[] of each user document
+        foreach (var user in usersWhoJoinedCommunity)
+        {
+            user.JoinedCommunities.Remove(community.Id);
+            await _userCollection.ReplaceOneAsync(u => u.Id == user.Id, user);
+        }
 
-        community.Members.Add(userIdObjectId);
-
-        // Update the community object in the MongoDB collection
-        var update = Builders<Community>.Update.Set(c => c.Members, community.Members);
-        await _communityCollection.UpdateOneAsync(filter, update);
+        // Step 3 - Delete the community
+        await _communityCollection.DeleteOneAsync(c => c.Id == community.Id);
     }
-    
+
+
+    // 7. Add a member/user to the community
+    public async Task<Community> AddMember(string communityId, string userId)
+    {
+        // Note - Must check whether user is already added from both community and user pov
+
+        // Retrieve the community by its ID
+        var communityFilter = Builders<Community>.Filter.Eq(c => c.Id, communityId);
+        var community = await _communityCollection.Find(communityFilter).FirstOrDefaultAsync();
+
+        // Retrieve the user by its ID
+        var userFilter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var user = await _userCollection.Find(userFilter).FirstOrDefaultAsync();
+
+        // Check if the user is not already a member of the community
+        if (!community.Members.Contains(userId))
+        {
+            // Add the userId to the Members list of the community document
+            community.Members.Add(userId);
+            // Adding community ObjectId the user document
+            user.JoinedCommunities.Add(communityId);
+
+            // Update the community  in the MongoDB collection
+            var communityUpdate = Builders<Community>.Update.Set(c => c.Members, community.Members);
+            await _communityCollection.UpdateOneAsync(communityFilter, communityUpdate);
+
+            // Update the user joined communities in the MongoDB collection
+            var userUpdate = Builders<User>.Update.Set(u => u.JoinedCommunities, user.JoinedCommunities);
+            await _userCollection.UpdateOneAsync(userFilter, userUpdate);
+
+            return community;
+        }
+        else
+        {
+            // User is already added to the community
+            return new Community();
+        }
+    }
 }
