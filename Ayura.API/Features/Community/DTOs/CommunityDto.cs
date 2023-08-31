@@ -8,4 +8,5 @@ public class CommunityDto
     public string CommunityDescription { get; set; } = string.Empty;
     public bool IsPublic { get; set; } //  false = private, true = public
     // List of ChallengeCategories
+    
 }

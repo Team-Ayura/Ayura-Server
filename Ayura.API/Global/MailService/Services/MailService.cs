@@ -1,5 +1,5 @@
 using Ayura.API.Global.MailService.Configuration;
-using Ayura.API.Global.MailService.DTOs_;
+using Ayura.API.Global.MailService.DTOs;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -50,6 +50,7 @@ public class MailService : IMailService
         catch (Exception ex)
         {
             // Exception Details
+            Console.WriteLine(ex.Message);
             return false;
         }
     }

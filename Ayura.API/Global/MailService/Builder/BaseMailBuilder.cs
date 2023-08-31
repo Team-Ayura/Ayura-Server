@@ -1,5 +1,5 @@
 using Ayura.API.Features.Profile.Helpers.MailService;
-using Ayura.API.Global.MailService.DTOs_;
+using Ayura.API.Global.MailService.DTOs;
 
 namespace Ayura.API.Global.MailService;
 

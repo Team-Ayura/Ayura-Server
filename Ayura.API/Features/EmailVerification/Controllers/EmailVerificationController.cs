@@ -1,6 +1,8 @@
 using Ayura.API.Features.EmailVerification.DTOs;
 using Ayura.API.Features.EmailVerification.Services;
 using Ayura.API.Features.Profile.Helpers;
+using Ayura.API.Global;
+using Ayura.API.Global.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ayura.API.Features.EmailVerification.Controllers;
@@ -17,13 +19,13 @@ public class EmailVerificationController : Controller
     }
 
     [HttpPost("generate")]
-    public IActionResult GenerateEmailVerification([FromBody] EvcRequestDto evcodeRequest)
+    public async Task<IActionResult> GenerateEmailVerification([FromBody] EvcRequestDto evcodeRequest)
     {
-        var userId = ResolveJwt.ResolveIdFromJWT(Request);
+        var userId = ResolveJwt.ResolveIdFromJwt(Request);
         // if user is not logged in, return 401
         if (userId == null) return Unauthorized();
         Console.Write($"ID is {userId}\n");
-        var result = _emailVerificationService.GenerateEmailVerificationCode(evcodeRequest, userId);
+        var result = await _emailVerificationService.GenerateEmailVerificationCode(evcodeRequest, userId);
         return Ok(result);
     }
 
@@ -31,7 +33,7 @@ public class EmailVerificationController : Controller
     [HttpPost("verify")]
     public IActionResult VerifyEmail([FromBody] EvcVerifyDto evcodeVerify)
     {
-        var userId = ResolveJwt.ResolveIdFromJWT(Request);
+        var userId = ResolveJwt.ResolveIdFromJwt(Request);
         var result = _emailVerificationService.VerifyEmail(evcodeVerify, userId);
         return Ok(result);
     }

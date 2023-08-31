@@ -1,6 +1,8 @@
 using Ayura.API.Features.Profile.DTOs;
 using Ayura.API.Features.Profile.Helpers;
 using Ayura.API.Features.Profile.Services;
+using Ayura.API.Global;
+using Ayura.API.Global.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ayura.API.Features.Profile.Controllers;
@@ -21,11 +23,11 @@ public class ProfileController : ControllerBase
     [HttpGet("details")]
     public async Task<IActionResult> GetProfileDetails()
     {
-        var _userId = ResolveJwt.ResolveIdFromJWT(Request);
+        var userId = ResolveJwt.ResolveIdFromJwt(Request);
 
         try
         {
-            var profileDetails = await _profileRetrieveService.RetrieveProfileDetails(_userId);
+            var profileDetails = await _profileRetrieveService.RetrieveProfileDetails(userId);
 
             if (profileDetails == null) return Ok("No User Details");
 
@@ -46,12 +48,12 @@ public class ProfileController : ControllerBase
     [HttpPut("update")]
     public async Task<IActionResult> UpdateProfileDetails([FromBody] UpdateDetailsDto updateDetailsDto)
     {
-        var _userId = ResolveJwt.ResolveIdFromJWT(Request);
+        var userId = ResolveJwt.ResolveIdFromJwt(Request);
 
         try
         {
-            Console.Write($"ID is {_userId}\n");
-            var updatedProfileDetails = await _profileUpdateService.UpdateProfileDetails(_userId, updateDetailsDto);
+            Console.Write($"ID is {userId}\n");
+            var updatedProfileDetails = await _profileUpdateService.UpdateProfileDetails(userId, updateDetailsDto);
 
             Console.Write("Function Done!!");
 

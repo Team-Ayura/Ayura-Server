@@ -1,4 +1,4 @@
-namespace Ayura.API.Global.MailService.DTOs_;
+namespace Ayura.API.Global.MailService.DTOs;
 
 public class MailData
 {

@@ -10,7 +10,6 @@ public class EvcGenerator
         var evc = new string(Enumerable.Repeat(chars, 8)
             .Select(s => s[random.Next(s.Length)]).ToArray());
 
-        Console.WriteLine(evc);
         return evc;
     }
 }
