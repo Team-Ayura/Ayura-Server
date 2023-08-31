@@ -1,3 +1,4 @@
+using Ayura.API.Features.Activity.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -34,32 +35,4 @@ public class User
 
     [BsonElement("activityLevel")] public string ActivityLevel { get; set; } = null!;
     [BsonElement("measurableActivities")] public MeasurableActivities MeasurableActivities { get; set; } = null!;
-}
-
-public class MeasurableActivities
-{
-    [BsonElement("walkAndRunning")] public List<WalkAndRunningHistory> WalkAndRunning{ get; set; } = null!;
-    
-    [BsonElement("cycling")] public List<WalkAndRunningHistory> Cycling{ get; set; } = null!;
-}
-
-// public class MeasurableActivity
-// {
-//     [BsonElement("name")] public string Name { get; set; } = null!;
-//     
-//     [BsonElement("history")] public List<WalkAndRunningHistory> History { get; set; } = null!;
-// }
-
-public class WalkAndRunningHistory
-{
-    [BsonElement("date")] public DateTime Date { get; set; }
-    
-    [BsonElement("movementMinutes")] public int MoveMinutes { get; set; }
-    
-    [BsonElement("distanceWalked")] public double DistanceWalked { get; set; }
-    
-    [BsonElement("stepCount")] public int StepCount { get; set; }
-    
-    [BsonElement("caloriesBurned")] public int CaloriesBurned { get; set; }
-
 }
