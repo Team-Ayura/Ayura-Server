@@ -28,7 +28,7 @@ public class ProfileRetrieveService : IProfileRetrieveService
         _mapper = mapperConfig.CreateMapper();
     }
 
-    public async Task<ProfileDetailsDto> RetrieveProfileDetails(string id)
+    public async Task<ProfileDetailsDto?> RetrieveProfileDetails(string? id)
     {
         var filter = Builders<User>.Filter.Eq("Id", id);
         User user = await _userCollection.Find(filter).FirstOrDefaultAsync();

@@ -17,20 +17,21 @@ public class CommunitiesController : Controller
 
     // Community Service is injected on to the controller
     // This is Constructor as an arrow function
-    public CommunitiesController(CommunityService communityService, PostService postService, CommentService commentService) {
+    public CommunitiesController(CommunityService communityService, PostService postService,
+        CommentService commentService)
+    {
         _communityService = communityService;
         _postService = postService;
         _commentService = commentService;
-        
     }
 
 
     // From here onwards methods
-    // 1. GET ALL Communities
+    // 1. GET ALL PUBLIC Communities
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        var allCommunities = await _communityService.GetCommunities();
+        var allCommunities = await _communityService.GetPublicCommunities();
         if (allCommunities.Any()) //Check whether there are any drivers in the collection
         {
             return Ok(allCommunities);
@@ -39,11 +40,11 @@ public class CommunitiesController : Controller
         return NotFound(new { Message = "No Communities Found" });
     }
 
-    // 2. GET a community by ID
-    [HttpGet("{id:length(24)}")] // Constraint to check whether it has 24 chars
-    public async Task<IActionResult> Get(string id)
+    // 2. GET a community by ID 
+    [HttpGet("{communityId:length(24)}")] // Constraint to check whether it has 24 chars
+    public async Task<IActionResult> Get(string communityId)
     {
-        var existingCommunity = await _communityService.GetCommunities(id);
+        var existingCommunity = await _communityService.GetCommunityById(communityId);
         if (existingCommunity is null)
         {
             return NotFound(new { Message = "Community not found." });
@@ -52,74 +53,144 @@ public class CommunitiesController : Controller
         return Ok(existingCommunity);
     }
 
+    // 3.  Get user joined communities 
+    [HttpGet("joined/{userId:length(24)}")] // Constraint to check whether it has 24 chars
+    public async Task<IActionResult> GetJoinedCommunities(string userId)
+    {
+        var joinedCommunities = await _communityService.GetJoinedCommunities(userId);
+        if (joinedCommunities.Any())
+        {
+            return Ok(new
+            {
+                Message = "Community user joined",
+                communities = joinedCommunities
+            });
+        }
+
+        // Handle the case when the user is not found or has no joined communities.
+        return NotFound(new
+        {
+            Message = "there are no joined communities or the user is not found."
+        });
+    }
+
     // 3. Create a Community
     [HttpPost("create")]
     public async Task<IActionResult> CreateCommunity(CommunityModel community)
     {
-        var createdCommunity = await _communityService.CreateCommunity(community);
-        return CreatedAtAction("Get", new { id = createdCommunity.Id }, createdCommunity);
+        try
+        {
+            var createdCommunity = await _communityService.CreateCommunity(community);
+            return CreatedAtAction("Get", new { id = createdCommunity.Id }, createdCommunity);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, $"An error occurred");
+        }
     }
 
     // 4. Update a Community
-    [HttpPut("{id:length(24)}")]
-    public async Task<IActionResult> UpdateCommunity(string id, CommunityModel updatedCommunity)
+    [HttpPut("{communityId:length(24)}")]
+    public async Task<IActionResult> UpdateCommunity(string communityId, CommunityModel updatedCommunity)
     {
-        //Get the community from DB
-        var existingCommunity = await _communityService.GetCommunities(id);
-
-        if (existingCommunity is null)
+        try
         {
-            return NotFound(new { Message = "Community not found." });
+            //Get the community from DB
+            var existingCommunity = await _communityService.GetCommunityById(communityId);
+
+            if (existingCommunity is null)
+            {
+                return NotFound(new { Message = "Community not found." });
+            }
+
+            updatedCommunity.Id = existingCommunity.Id;
+            // Since this call Company Model the MembersList will be an empty String
+
+            // Preserve old MembersList
+            updatedCommunity.Members = existingCommunity.Members;
+            await _communityService.UpdateCommunity(updatedCommunity);
+
+            // Create the response object
+            var response = new
+            {
+                Message = "Community updated successfully.",
+                Community = updatedCommunity // Include the updated community
+            };
+
+            return Ok(updatedCommunity);
         }
-
-        updatedCommunity.Id = existingCommunity.Id;
-        // Since this call Company Model the MembersList will be an empty String
-
-        // Preserve old MembersList
-        updatedCommunity.Members = existingCommunity.Members;
-        await _communityService.UpdateCommunity(updatedCommunity);
-
-        // Create the response object
-        var response = new
+        catch (Exception e)
         {
-            Message = "Community updated successfully.",
-            Community = updatedCommunity // Include the updated community
-        };
-
-        return Ok(response);
+            
+            Console.WriteLine(e);
+            return StatusCode(500, new { Message = "An error occurred." });
+        }
     }
 
     // 5. Delete a community
-    [HttpDelete("{id:length(24)}")]
-    public async Task<IActionResult> Delete(string id)
+    [HttpDelete("{communityId:length(24)}")]
+    public async Task<IActionResult> Delete(string communityId)
     {
-        var existingCommunity = await _communityService.GetCommunities(id);
-
-        if (existingCommunity is null)
+        try
         {
-            return NotFound(new { Message = "Community not found." });
-        }
+            var existingCommunity = await _communityService.GetCommunityById(communityId);
 
-        await _communityService.DeleteCommunity(id);
-        return NoContent();
+            if (existingCommunity is null)
+            {
+                return NotFound(new { Message = "Community not found." });
+            }
+
+            await _communityService.DeleteCommunity(existingCommunity);
+            return Ok(new
+            {
+                Message = "Community deleted successfully.",
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, new { Message = "An error occurred." });
+        }
     }
 
     //6. Adding a member to Community
     [HttpPut("addMember")]
     public async Task<IActionResult> AddMember([FromBody] MemberRequest memberRequest)
     {
-        await _communityService.AddMember(memberRequest.CommunityId, memberRequest.UserId);
-        
-        return Ok(new { Message = "Member Added successfully." });
+        try
+        {
+            // Get user by email
+            var user = await _communityService.GetUserByEmail(memberRequest.UserEmail);
+
+            if (user.Id == null)
+            {
+                return NotFound(new
+                {
+                    Message = "User Email Not Found"
+                });
+            }
+
+            var community = await _communityService.AddMember(memberRequest.CommunityId, user.Id);
+
+            return community.Id == null
+                ? NotFound(new { Message = "Member is already added" })
+                : Ok(new { Message = "Member Added successfully.", Community = community });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, new { Message = "An error occurred." });
+        }
     }
-    
+
     //7. Get all posts of a community
     [HttpGet("posts/{communityId:length(24)}")]
     public async Task<IActionResult> GetCommunityPosts(string communityId)
     {
         try
         {
-            var existingCommunity = await _communityService.GetCommunities(communityId);
+            var existingCommunity = await _communityService.GetCommunityById(communityId);
             if (existingCommunity is null)
             {
                 return NotFound(new { Message = "Community not found." });
@@ -130,11 +201,12 @@ public class CommunitiesController : Controller
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             // Log the exception and return an appropriate error response
             return StatusCode(500, new { Message = "An error occurred while processing your request." });
         }
     }
-    
+
     // 2. GET a post by ID
     [HttpGet("post/{id:length(24)}")] // Constraint to check whether it has 24 chars
     public async Task<IActionResult> GetPost(string id)
@@ -147,13 +219,14 @@ public class CommunitiesController : Controller
 
         return Ok(existingPost);
     }
-    
+
     //8.Adding a post to community
     [HttpPost("post")]
     public async Task<IActionResult> CreatePost(PostModel post)
     {
-        try{
-            var existingCommunity = await _communityService.GetCommunities(post.CommunityId);
+        try
+        {
+            var existingCommunity = await _communityService.GetCommunityById(post.CommunityId);
             if (existingCommunity is null)
             {
                 return NotFound(new { Message = "Community not found." });
@@ -164,6 +237,7 @@ public class CommunitiesController : Controller
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             // Log the exception and return an appropriate error response
             return StatusCode(500, new { Message = "An error occurred while processing your request." });
         }
@@ -186,7 +260,7 @@ public class CommunitiesController : Controller
         // Preserve old MembersList
         updatedPost.Comments = existingPost.Comments;
         await _postService.UpdatePost(updatedPost);
-        
+
         // Create the response object
         var response = new
         {
@@ -196,16 +270,15 @@ public class CommunitiesController : Controller
 
         return Ok(response);
     }
-    
+
     //10. delete post 
     [HttpDelete("post/{id:length(24)}")]
     public async Task<IActionResult> DeletePost(string id)
     {
-       
         try
         {
             var existingPost = await _postService.GetPost(id);
-        
+
             if (existingPost == null)
             {
                 return NotFound("Post not found.");
@@ -219,7 +292,7 @@ public class CommunitiesController : Controller
             return StatusCode(500, $"An error occurred");
         }
     }
-    
+
     //11. create comment
     [HttpPost("comment")]
     public async Task<IActionResult> AddComment(CommentModel comment)
@@ -227,7 +300,7 @@ public class CommunitiesController : Controller
         var createdComment = await _commentService.CreateComment(comment);
         return CreatedAtAction("Get", new { id = createdComment.Id }, createdComment);
     }
-    
+
     //12. edit comment
     [HttpPut("comment")]
     public async Task<IActionResult> EditComment(CommentModel updatedComment)
@@ -242,16 +315,15 @@ public class CommunitiesController : Controller
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
-    
+
     //13. delete comment 
     [HttpDelete("comment/{id:length(24)}")]
     public async Task<IActionResult> DeleteComment(string id)
     {
-       
         try
         {
             var existingComment = await _commentService.GetComment(id);
-        
+
             if (existingComment == null)
             {
                 return NotFound("Comment not found.");
@@ -265,5 +337,30 @@ public class CommunitiesController : Controller
             return StatusCode(500, $"An error occurred");
         }
     }
-    
+
+
+    // 14. Get Community Members
+    [HttpGet("getMembers/{communityId:length(24)}")]
+    public async Task<IActionResult> GetCommunityMembers(string communityId)
+    {
+        try
+        {
+            var users = await _communityService.GetCommunityMembers(communityId);
+
+            if (users.Any())
+            {
+                return Ok(users);
+            }
+
+            return NotFound(new
+            {
+                Message = "No Members Found"
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return StatusCode(500, $"An error occurred");
+        }
+    }
 }

@@ -8,5 +8,5 @@ public interface IEmailVerificationService
     Task<string> GenerateEmailVerificationCode(EvcRequestDto evcRequestDto, string userId);
 
     // Verify email verification code and return true if it matches
-    Task<string> VerifyEmail(EvcVerifyDto evcVerifyDto, string userId);
+    Task<string> VerifyEmail(EvcVerifyDto evcVerifyDto, string? userId);
 }
