@@ -20,6 +20,8 @@ public class Community
 
     [BsonElement("categories")] public List<string> Categories { get; set; } = null!;
 
-    // Members of a community
-    [BsonElement("members")] public List<ObjectId> Members { get; set; } = new List<ObjectId>();
+// Members of a community
+    [BsonElement("members")]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public List<string> Members { get; set; } = new List<string>();
 }

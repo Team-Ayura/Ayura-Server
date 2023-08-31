@@ -20,7 +20,7 @@ public class User
 
     [BsonElement("lname")] public string LastName { get; set; } = null!;
 
-    [BsonElement("birthDay")] public DateTime BirthDay { get; set; } 
+    [BsonElement("birthDay")] public DateTime BirthDay { get; set; }
 
     [BsonElement("gender")] public char Gender { get; set; }
 
@@ -33,4 +33,8 @@ public class User
     [BsonElement("bloodGroup")] public string BloodGroup { get; set; } = null!;
 
     [BsonElement("activityLevel")] public string ActivityLevel { get; set; } = null!;
+    
+    [BsonElement("joinedCommunities")]    
+    [BsonRepresentation(BsonType.ObjectId)]
+    public List<string> JoinedCommunities { get; set; } = new List<string>();
 }
