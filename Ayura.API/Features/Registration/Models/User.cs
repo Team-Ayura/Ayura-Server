@@ -1,3 +1,4 @@
+using Ayura.API.Features.Activity.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -37,4 +38,6 @@ public class User
     [BsonElement("joinedCommunities")]    
     [BsonRepresentation(BsonType.ObjectId)]
     public List<string> JoinedCommunities { get; set; } = new List<string>();
+    
+    [BsonElement("measurableActivities")] public MeasurableActivities MeasurableActivities { get; set; } = null!;
 }

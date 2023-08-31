@@ -1,5 +1,6 @@
 using System.Text;
 using Ayura.API.Configuration;
+using Ayura.API.Features.Activity.Services;
 using Ayura.API.Features.EmailVerification.Services;
 using Ayura.API.Features.OTP.Services;
 using Ayura.API.Features.Profile.Helpers.MailService;
@@ -34,6 +35,7 @@ builder.Services.AddScoped<IProfileUpdateService, ProfileUpdateService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
+builder.Services.AddScoped<IWalkAndRunningService, WalkAndRunningService>();
 
 //Injecting Community Service
 builder.Services.AddScoped<CommunityService>();
