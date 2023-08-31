@@ -145,7 +145,7 @@ public class CommunitiesController : Controller
     {
         try
         {
-            var existingCommunity = await _communityService.GetCommunities(communityId);
+            var existingCommunity = await _communityService.GetCommunityById(communityId);
             if (existingCommunity is null)
             {
                 return NotFound(new { Message = "Community not found." });
@@ -180,7 +180,7 @@ public class CommunitiesController : Controller
     public async Task<IActionResult> CreatePost(PostModel post)
     {
         try{
-            var existingCommunity = await _communityService.GetCommunities(post.CommunityId);
+            var existingCommunity = await _communityService.GetCommunityById(post.CommunityId);
             if (existingCommunity is null)
             {
                 return NotFound(new { Message = "Community not found." });
