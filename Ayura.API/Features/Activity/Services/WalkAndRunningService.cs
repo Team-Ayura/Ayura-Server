@@ -1,12 +1,11 @@
 using System.Globalization;
 using Ayura.API.Features.Activity.DTOs;
+using Ayura.API.Features.Activity.Models;
 using Ayura.API.Global.Constants;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Org.BouncyCastle.Asn1;
-using SendGrid;
 
 namespace Ayura.API.Features.Activity.Services;
 
