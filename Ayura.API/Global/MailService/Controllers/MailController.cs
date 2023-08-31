@@ -10,9 +10,9 @@ public class MailController : ControllerBase
 {
     private readonly IMailService _mailService;
     //injecting the IMailService into the constructor
-    public MailController(IMailService _MailService)
+    public MailController(IMailService mailService)
     {
-        _mailService = _MailService;
+        _mailService = mailService;
     }
     
     // create a test maildata for Name Pasan Gimhana and Email Pasangimhana@gmail.com
