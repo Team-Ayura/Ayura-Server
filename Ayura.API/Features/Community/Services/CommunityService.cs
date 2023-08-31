@@ -3,6 +3,7 @@ using Ayura.API.Models;
 using MongoDB.Driver;
 using Ayura.API.Models.Configuration;
 using AutoMapper;
+using Newtonsoft.Json.Linq;
 
 
 namespace Ayura.API.Services;
@@ -113,7 +114,6 @@ public class CommunityService : ICommunityService
     public async Task<Community> AddMember(string communityId, string userId)
     {
         // Note - Must check whether user is already added from both community and user pov
-
         // Retrieve the community by its ID
         var communityFilter = Builders<Community>.Filter.Eq(c => c.Id, communityId);
         var community = await _communityCollection.Find(communityFilter).FirstOrDefaultAsync();
@@ -145,5 +145,31 @@ public class CommunityService : ICommunityService
             // User is already added to the community
             return new Community();
         }
+    }
+
+    // 8. Get user by Email
+    public async Task<User> GetUserByEmail(string userEmail)
+    {
+        // Retrieve the user by its ID
+        var userFilter = Builders<User>.Filter.Eq(u => u.Email, userEmail);
+        var user = await _userCollection.Find(userFilter).FirstOrDefaultAsync();
+
+        return user ?? new User();
+    }
+
+    public async Task<List<User>> GetCommunityMembers(string communityId)
+    {
+        // Retrieve the community by its ID
+        var communityFilter = Builders<Community>.Filter.Eq(c => c.Id, communityId);
+        var community = await _communityCollection.Find(communityFilter).FirstOrDefaultAsync();
+        var memberIds = community.Members; // Get the Member Ids from the community
+        
+        // Query the user collection
+        var userFilter = Builders<User>.Filter.In(u => u.Id, memberIds);
+
+        var users = await _userCollection.Find(userFilter).ToListAsync();
+
+        return users;
+        
     }
 }
