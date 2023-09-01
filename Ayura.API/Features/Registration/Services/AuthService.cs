@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using Ayura.API.Configuration;
+using Ayura.API.Features.Registration.DTOs;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
 using Ayura.API.Models.DTOs;
@@ -35,7 +36,7 @@ public class AuthService : IAuthService
         _mapper = mapperConfig.CreateMapper();
     }
 
-    public async Task<string> AuthenticateUser(string email, string password)
+    public async Task<LoginResponse> AuthenticateUser(string email, string password)
     {
         var filter = Builders<User>.Filter.Eq(u => u.Email, email);
         var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
@@ -46,8 +47,16 @@ public class AuthService : IAuthService
             throw new Exception("Invalid password"); // password does not match
 
         // Generate and return a JWT token to authenticated user
-        var token = GenerateJwtToken(user);
-        return token;
+        var response = new LoginResponse
+        {
+            UserId = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            ProfileImage = "",
+            Token = GenerateJwtToken(user)
+        };
+        return response;
     }
 
     public async Task<User> RegisterUser(SignupRequest signupRequest)
