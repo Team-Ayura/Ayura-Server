@@ -10,7 +10,7 @@ public interface ICommentService
     Task<Comment> CreateComment(Comment comment);
     
     //update comment 
-    Task UpdateComment(Comment comment);
+    Task UpdateComment(string commentContent, string commentId);
     
     //delete comment
     Task DeleteComment(string id);

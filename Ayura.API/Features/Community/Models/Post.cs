@@ -20,6 +20,9 @@ public class Post
 
     [BsonElement("communityId")] public string CommunityId { get; set; } = null!;
 
-    [BsonElement("comments")] public List<Comment> Comments { get; set; } = new List<Comment>();
+    // Comments of a community
+    [BsonElement("comments")]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public List<string> Comments { get; set; } = new List<string>();
 
 }

@@ -122,7 +122,6 @@ public class CommunitiesController : Controller
         }
         catch (Exception e)
         {
-            
             Console.WriteLine(e);
             return StatusCode(500, new { Message = "An error occurred." });
         }
@@ -301,13 +300,13 @@ public class CommunitiesController : Controller
         return CreatedAtAction("Get", new { id = createdComment.Id }, createdComment);
     }
 
-    //12. edit comment
+    // //12. edit comment
     [HttpPut("comment")]
-    public async Task<IActionResult> EditComment(CommentModel updatedComment)
+    public async Task<IActionResult> EditComment(string commentContent, string commentId)
     {
         try
         {
-            await _commentService.UpdateComment(updatedComment);
+            await _commentService.UpdateComment(commentContent, commentId);
             return Ok("Comment updated successfully.");
         }
         catch (Exception ex)

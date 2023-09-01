@@ -32,40 +32,30 @@ public class CommentService : ICommentService
     public async Task<Comment> CreateComment(Comment comment)
     {
         await _commentCollection.InsertOneAsync(comment);
-
+    
         var postFilter = Builders<Post>.Filter.Eq(p => p.Id, comment.PostId);
-        var update = Builders<Post>.Update.Push(p => p.Comments, comment);
+        var update = Builders<Post>.Update.Push(p => p.Comments, comment.Id);
     
         await _postCollection.UpdateOneAsync(postFilter, update);
-
+    
         return comment;
     }
     
     //edit comment
-    public async Task UpdateComment(Comment updatedComment)
+    public async Task UpdateComment(string commentContent, string commentId)
     {
-        var commentFilter = Builders<Comment>.Filter.Eq(c => c.Id, updatedComment.Id);
-        var existingcomment = await _commentCollection.Find(commentFilter).FirstOrDefaultAsync();
-
-        if (existingcomment != null)
+        var commentFilter = Builders<Comment>.Filter.Eq(c => c.Id, commentId);
+        var existingComment = await _commentCollection.Find(commentFilter).FirstOrDefaultAsync();
+    
+        if (existingComment != null)
         {
             var update = Builders<Comment>.Update
-                .Set(c => c.Content, updatedComment.Content);
-
+                .Set(c => c.Content, commentContent);
+    
             await _commentCollection.UpdateOneAsync(commentFilter, update);
-            
-            // Update the corresponding comment in the Post collection
-            var postFilter = Builders<Post>.Filter.And(
-                Builders<Post>.Filter.Eq(p => p.Id, updatedComment.PostId),
-                Builders<Post>.Filter.ElemMatch(p => p.Comments, c => c.Id == updatedComment.Id)
-            );
 
-            var postUpdate = Builders<Post>.Update.Set("comments.$.content", updatedComment.Content);
-
-            await _postCollection.UpdateOneAsync(postFilter, postUpdate);
-            
         }
-
+    
        
     }
 
