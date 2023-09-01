@@ -1,10 +1,11 @@
+using Ayura.API.Features.Community.DTOs;
 using Ayura.API.Models;
 
 namespace Ayura.API.Services;
 
 public interface IPostService
 {
-    Task<List<Post>> GetPosts(string communityId);
+    Task<List<PostRequest>> GetPosts(string communityId);
 
     Task<Post> GetPost(string id);
 
