@@ -19,4 +19,6 @@ public class CyclingHistory
     [BsonElement("caloriesBurned")] public int CaloriesBurned { get; set; }
     
     [BsonElement("path")] public List<LocationPoint>? Path { get; set; }
+    
+    [BsonElement("images")] public List<string>? Images { get; set; }
 }

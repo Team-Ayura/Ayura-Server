@@ -101,6 +101,7 @@ public class CyclingService : ICyclingService
             Duration = addCyclingRequest.Duration,
             CaloriesBurned = addCyclingRequest.CaloriesBurned,
             Path = addCyclingRequest.Path,
+            Images = addCyclingRequest.Images,
         };
         
         var filter = Builders<User>.Filter.Eq(u => u.Id, addCyclingRequest.UserId);
