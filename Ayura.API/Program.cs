@@ -36,6 +36,7 @@ builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 builder.Services.AddScoped<IWalkAndRunningService, WalkAndRunningService>();
+builder.Services.AddScoped<ICyclingService, CyclingService>();
 
 //Injecting Community Service
 builder.Services.AddScoped<CommunityService>();
