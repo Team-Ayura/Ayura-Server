@@ -16,7 +16,7 @@ public class CyclingController : Controller
     }
     
     // 1. Get cycling data 
-    [HttpGet("getcyclingbyfilter")]
+    [HttpGet("getcyclingdatabyfilter")]
     public async Task<IActionResult> GetCyclingDataByFilter(string userId, string filterType)
     {
         try
