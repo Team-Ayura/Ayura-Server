@@ -5,6 +5,7 @@ using Ayura.API.Features.EmailVerification.Services;
 using Ayura.API.Features.OTP.Services;
 using Ayura.API.Features.Profile.Helpers.MailService;
 using Ayura.API.Features.Profile.Services;
+using Ayura.API.Features.Sleep.Services;
 using Ayura.API.Global.MailService.Configuration;
 using Ayura.API.Models.Configuration;
 using Ayura.API.Services;
@@ -37,6 +38,8 @@ builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>(
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 builder.Services.AddScoped<IWalkAndRunningService, WalkAndRunningService>();
 builder.Services.AddScoped<ICyclingService, CyclingService>();
+builder.Services.AddScoped<ISleepService, SleepService>();
+
 
 //Injecting Community Service
 builder.Services.AddScoped<CommunityService>();
