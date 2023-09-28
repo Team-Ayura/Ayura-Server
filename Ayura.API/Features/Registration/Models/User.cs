@@ -1,4 +1,5 @@
 using Ayura.API.Features.Activity.Models;
+using Ayura.API.Features.Sleep.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -40,4 +41,5 @@ public class User
     public List<string> JoinedCommunities { get; set; } = new List<string>();
     
     [BsonElement("measurableActivities")] public MeasurableActivities MeasurableActivities { get; set; } = null!;
+    [BsonElement("sleepHistories")] public List<SleepHistory> SleepHistories{ get; set; } = null!;
 }
