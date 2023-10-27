@@ -1,5 +1,8 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Ayura.API.Features.MoodTracking.Models;
+
+
 
 namespace Ayura.API.Models;
 
@@ -33,4 +36,19 @@ public class User
     [BsonElement("bloodGroup")] public string BloodGroup { get; set; } = null!;
 
     [BsonElement("activityLevel")] public string ActivityLevel { get; set; } = null!;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    [BsonElement("moods")] public List<Mood> Moods { get; set; } = new List<Mood>();
 }
