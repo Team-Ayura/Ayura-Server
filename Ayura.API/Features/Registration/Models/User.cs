@@ -1,8 +1,7 @@
+using Ayura.API.Features.Activity.Models;
+using Ayura.API.Features.Sleep.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Ayura.API.Features.MoodTracking.Models;
-
-
 
 namespace Ayura.API.Models;
 
@@ -23,7 +22,7 @@ public class User
 
     [BsonElement("lname")] public string LastName { get; set; } = null!;
 
-    [BsonElement("birthDay")] public DateTime BirthDay { get; set; } 
+    [BsonElement("birthDay")] public DateTime BirthDay { get; set; }
 
     [BsonElement("gender")] public char Gender { get; set; }
 
@@ -37,18 +36,10 @@ public class User
 
     [BsonElement("activityLevel")] public string ActivityLevel { get; set; } = null!;
     
+    [BsonElement("joinedCommunities")]    
+    [BsonRepresentation(BsonType.ObjectId)]
+    public List<string> JoinedCommunities { get; set; } = new List<string>();
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    [BsonElement("moods")] public List<Mood> Moods { get; set; } = new List<Mood>();
+    [BsonElement("measurableActivities")] public MeasurableActivities MeasurableActivities { get; set; } = null!;
+    [BsonElement("sleepHistories")] public List<SleepHistory> SleepHistories{ get; set; } = null!;
 }

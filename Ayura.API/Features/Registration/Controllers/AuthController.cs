@@ -26,8 +26,8 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var token = await _authService.AuthenticateUser(signinRequest.Email, signinRequest.Password);
-            return Ok(new { Token = token }); // Return the token in the response
+            var userInfo = await _authService.AuthenticateUser(signinRequest.Email, signinRequest.Password);
+            return Ok(userInfo); // Return the token in the response
         }
         catch (Exception ex)
         {
