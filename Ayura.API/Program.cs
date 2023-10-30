@@ -24,6 +24,10 @@ builder.Services.AddSingleton<IAppSettings>(sp =>
 
 builder.Services.Configure<AyuraDatabaseSettings>(
     builder.Configuration.GetSection(nameof(AyuraDatabaseSettings)));
+
+// Auth Middleware
+builder.Services.AddScoped<AuthMiddleware>();
+
 builder.Services.AddSingleton<IAyuraDatabaseSettings>(sp =>
     sp.GetRequiredService<IOptions<AyuraDatabaseSettings>>().Value);
 
@@ -94,6 +98,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<AuthMiddleware>();
 
 app.MapControllers();
 
