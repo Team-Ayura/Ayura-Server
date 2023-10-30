@@ -1,10 +1,8 @@
-using Ayura.API.Models.Constants;
-
-namespace Ayura.API.Features.MoodTracking.Models;
-
-
 public class Mood
 {
+    public string Id { get; set; } // Generate a unique ID for each mood entry
     public DateTime Date { get; set; }
-    public MoodTypes MoodType { get; set; } = MoodTypes.Neutral;
+    public string Time { get; set; }
+    public string MoodName { get; set; }
+    public int MoodWeight { get; set; }
 }

@@ -3,6 +3,7 @@ using Ayura.API.Features.Profile.Helpers;
 using Ayura.API.Features.Profile.Services;
 using Ayura.API.Global;
 using Ayura.API.Global.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ayura.API.Features.Profile.Controllers;
@@ -19,7 +20,21 @@ public class ProfileController : ControllerBase
         _profileRetrieveService = profileRetrieveService;
         _profileUpdateService = profileUpdateService;
     }
-
+    
+    [HttpGet("testwithauth")]
+    public IActionResult TestApi()
+    {
+        return Ok("Authorized Test Api");
+    }
+    
+    // test request
+    
+    [HttpGet("testnoauth")]
+    public IActionResult Test()
+    {
+        return Ok("No Auth Test");
+    }
+    
     [HttpGet("details")]
     public async Task<IActionResult> GetProfileDetails()
     {

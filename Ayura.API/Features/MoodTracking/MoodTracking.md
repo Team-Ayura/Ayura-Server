@@ -13,7 +13,8 @@ This documentation outlines the process of collecting and analyzing user moods t
 {
   "date": "2021-10-10",
   "time": "12:00",
-  "mood": "happy"
+  "mood": "happy",
+   "mood_weight": "5"
 }
 ```
 

@@ -42,4 +42,6 @@ public class User
     
     [BsonElement("measurableActivities")] public MeasurableActivities MeasurableActivities { get; set; } = null!;
     [BsonElement("sleepHistories")] public List<SleepHistory> SleepHistories{ get; set; } = null!;
+    
+    [BsonElement("moodHistories")] public List<Mood> MoodsHistories { get; set; } = null!;
 }

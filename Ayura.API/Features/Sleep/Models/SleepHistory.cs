@@ -19,5 +19,8 @@ public class SleepHistory
     [BsonElement("beforeSleepAffect")] public List<string>? BeforeSleepAffect { get; set; }
     
     [BsonElement("afterSleepAffect")] public List<string>? AfterSleepAffect { get; set; }
+    
+    // Duration of sleep in hours
+    [BsonElement("duration")] public double Duration { get; set; }
 
 }
