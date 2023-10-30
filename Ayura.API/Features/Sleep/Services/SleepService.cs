@@ -39,6 +39,7 @@ public class SleepService : ISleepService
             Id = ObjectId.GenerateNewId().ToString(),
             BedTime = addSleepDataDto.BedTime,
             WakeupTime = addSleepDataDto.WakeupTime,
+            Duration = addSleepDataDto.Duration,
             Quality = addSleepDataDto.Quality,
             BeforeSleepAffect = addSleepDataDto.BeforeSleepAffect,
             AfterSleepAffect = addSleepDataDto.AfterSleepAffect,

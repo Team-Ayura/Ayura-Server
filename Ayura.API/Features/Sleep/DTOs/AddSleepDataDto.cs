@@ -8,6 +8,8 @@ public class AddSleepDataDto
     
     public DateTime WakeupTime { get; set; }
     
+    public int Duration { get; set; }
+    
     public string? Quality { get; set; }
     
     public List<string>? BeforeSleepAffect { get; set; }
