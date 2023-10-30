@@ -6,3 +6,9 @@ public enum ChartFilterType {
     Month,
     Year
 }
+
+public enum SleepChartFilterType {
+    Week,
+    BiWeek,
+    Month,
+}
