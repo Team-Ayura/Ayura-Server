@@ -31,5 +31,21 @@ public class SleepController : Controller
             throw;
         }
     }
+    
+    // 2. Get sleeping data 
+        [HttpGet("getsleepingdatabyfilter")]
+        public async Task<IActionResult> GetSleepingDataByFilter(string userId, string filterType)
+        {
+            try
+            {
+                var data = await _sleepService.GetSleepingData(userId, filterType);
+                return Ok(new { data });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
 
 }
