@@ -11,5 +11,5 @@ public class Evc
 
     [BsonElement("expiryTime")] public DateTime ExpiryTime { get; set; }
 
-    [BsonElement("email")] public string Email { get; set; } = null! ;
+    [BsonElement("email")] public string Email { get; set; } = null!;
 }

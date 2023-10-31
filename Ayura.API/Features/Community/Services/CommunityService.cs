@@ -1,18 +1,16 @@
+using AutoMapper;
 using Ayura.API.Features.Community.DTOs;
 using Ayura.API.Models;
-using MongoDB.Driver;
 using Ayura.API.Models.Configuration;
-using AutoMapper;
-using Newtonsoft.Json.Linq;
-
+using MongoDB.Driver;
 
 namespace Ayura.API.Services;
 
 public class CommunityService : ICommunityService
 {
     private readonly IMongoCollection<Community> _communityCollection;
-    private readonly IMongoCollection<User> _userCollection;
     private readonly IMapper _mapper;
+    private readonly IMongoCollection<User> _userCollection;
 
     public CommunityService(IAyuraDatabaseSettings settings, IMongoClient mongoClient)
     {
@@ -37,30 +35,6 @@ public class CommunityService : ICommunityService
     public async Task<Community> GetCommunityById(string id)
     {
         return await _communityCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
-    }
-
-    // 3. Get all the user Joined communities
-    public async Task<List<Community>> GetJoinedCommunities(string userId)
-    {
-        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
-        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
-
-        if (user == null)
-        {
-            // Handle the case when the user is not found or has no joined communities
-            return new List<Community>();
-        }
-
-        var joinedCommunityIds = user.JoinedCommunities;
-
-        // Convert Community Ids to strings
-        var joinedCommunityIdStrings = joinedCommunityIds.Select(id => id.ToString());
-
-        var communityFilter = Builders<Community>.Filter.In(c => c.Id, joinedCommunityIdStrings);
-
-        var joinedCommunities = await _communityCollection.Find(communityFilter).ToListAsync();
-
-        return joinedCommunities;
     }
 
 
@@ -140,11 +114,31 @@ public class CommunityService : ICommunityService
 
             return community;
         }
-        else
-        {
-            // User is already added to the community
-            return new Community();
-        }
+
+        // User is already added to the community
+        return new Community();
+    }
+
+    // 3. Get all the user Joined communities
+    public async Task<List<Community>> GetJoinedCommunities(string userId)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (user == null)
+            // Handle the case when the user is not found or has no joined communities
+            return new List<Community>();
+
+        var joinedCommunityIds = user.JoinedCommunities;
+
+        // Convert Community Ids to strings
+        var joinedCommunityIdStrings = joinedCommunityIds.Select(id => id.ToString());
+
+        var communityFilter = Builders<Community>.Filter.In(c => c.Id, joinedCommunityIdStrings);
+
+        var joinedCommunities = await _communityCollection.Find(communityFilter).ToListAsync();
+
+        return joinedCommunities;
     }
 
     // 8. Get user by Email
@@ -163,13 +157,12 @@ public class CommunityService : ICommunityService
         var communityFilter = Builders<Community>.Filter.Eq(c => c.Id, communityId);
         var community = await _communityCollection.Find(communityFilter).FirstOrDefaultAsync();
         var memberIds = community.Members; // Get the Member Ids from the community
-        
+
         // Query the user collection
         var userFilter = Builders<User>.Filter.In(u => u.Id, memberIds);
 
         var users = await _userCollection.Find(userFilter).ToListAsync();
 
         return users;
-        
     }
 }

@@ -31,13 +31,11 @@ public class ProfileRetrieveService : IProfileRetrieveService
     public async Task<ProfileDetailsDto?> RetrieveProfileDetails(string? id)
     {
         var filter = Builders<User>.Filter.Eq("Id", id);
-        User user = await _userCollection.Find(filter).FirstOrDefaultAsync();
+        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
 
         if (user == null)
-        {
             // Handle the case where the user with the given email is not found
             return null;
-        }
         // Map the User model to ProfileDetailsDTO
         var profileDetails = _mapper.Map<ProfileDetailsDto>(user);
         /*return user;*/

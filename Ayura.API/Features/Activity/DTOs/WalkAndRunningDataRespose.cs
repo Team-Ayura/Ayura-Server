@@ -8,5 +8,5 @@ public class WalkAndRunningDataRespose
     public int avgMoveMinutes { get; set; } = 0;
     public int avgStepCount { get; set; } = 0;
     public int improvement { get; set; } = 0;
-    public List<int> steps { get; set; } = new List<int>();
+    public List<int> steps { get; set; } = new();
 }

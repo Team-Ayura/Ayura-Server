@@ -14,7 +14,7 @@ public class CyclingController : Controller
     {
         _cyclingService = cyclingService;
     }
-    
+
     // 1. Get cycling data 
     [HttpGet("getcyclingdatabyfilter")]
     public async Task<IActionResult> GetCyclingDataByFilter(string userId, string filterType)
@@ -46,7 +46,7 @@ public class CyclingController : Controller
             throw;
         }
     }
-    
+
     // 3. Get today's improvement considering past data
     [HttpGet("getcyclingimprovement")]
     public async Task<IActionResult> GetCyclingImprovement(string userId, int todayStepCount)
@@ -62,5 +62,4 @@ public class CyclingController : Controller
             throw;
         }
     }
-    
 }

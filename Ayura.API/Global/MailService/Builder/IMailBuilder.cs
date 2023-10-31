@@ -8,6 +8,6 @@ public interface IMailBuilder
     public IMailBuilder SetEmailSubject(string emailSubject);
     public IMailBuilder SetEmailToName(string emailToName);
     public IMailBuilder SetEmailToId(string emailToId);
-    
+
     public MailData Build();
 }
