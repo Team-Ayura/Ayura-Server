@@ -35,9 +35,10 @@ public class SleepService : ISleepService
     public async Task<string> AddSleepData(AddSleepDataDto addSleepDataDto)
     {
         
-        // map signin request to a user
+        // map sleep request to a user
         var oneSleepData = new SleepHistory
         {
+        
             Id = ObjectId.GenerateNewId().ToString(),
             BedTime = addSleepDataDto.BedTime,
             WakeupTime = addSleepDataDto.WakeupTime,
@@ -78,10 +79,14 @@ public class SleepService : ISleepService
                 startingDate = today.AddDays(-diff + 1).Date;
                 break;
             case SleepChartFilterType.BiWeek:
-                var daysInBiWeek = 14;
-                var daysUntilNextBiWeek = (today.Day - 1) % daysInBiWeek; // Days until the end of the current biweek
-                startingDate = today.AddDays(-daysUntilNextBiWeek).Date;
-                break;
+                var daysInWeek = 7;
+                 // Calculate the starting date for the current week
+                    var currentWeekStartDate = today.AddDays(-(int)today.DayOfWeek); 
+                    // Calculate the starting date for the previous week
+                    var previousWeekStartDate = currentWeekStartDate.AddDays(-7);
+                    // Combine the previous week and the current week
+                    startingDate = previousWeekStartDate;
+                    break;
             case SleepChartFilterType.Month:
                 startingDate = new DateTime(today.Year, today.Month, 1);
                 break;
@@ -218,6 +223,53 @@ public class SleepService : ISleepService
                 };
 
                 break;
+                
+         case SleepChartFilterType.BiWeek:
+                         // aggregation pipline for the type week
+                         pipeline = new BsonDocument[]
+                         {
+                             new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+                             new BsonDocument("$unwind", "$sleepHistories"),
+                             new BsonDocument("$match", new BsonDocument
+                             {
+                                 {
+                                     "sleepHistories.bedTime",
+                                     new BsonDocument
+                                     {
+                                         { "$gte", startingDate },
+                                         { "$lte", endingDate }
+                                     }
+                                 }
+                             }),
+                             new BsonDocument("$project", new BsonDocument
+                             {
+                                 { "dayOfWeek", new BsonDocument("$dayOfWeek", "$sleepHistories.bedTime") },
+                                 { "date", new BsonDocument("$dateToString", new BsonDocument
+                                     {
+                                         { "format", "%Y-%m-%d" },
+                                         { "date", "$sleepHistories.bedTime" }
+                                     })
+                                 },
+                                 { "duration", "$sleepHistories.duration" }
+                             }),
+                             new BsonDocument("$group", new BsonDocument
+                             {
+                                 { "_id", new BsonDocument
+                                     {
+                                         { "dayOfWeek", "$dayOfWeek" },
+                                         { "date", "$date" }
+                                     }
+                                 },
+                                 { "totalDuration", new BsonDocument("$sum", "$duration") }
+                             }),
+                             new BsonDocument("$project", new BsonDocument
+                             {
+                                 { "unit", "$_id.dayOfWeek" },
+                                 { "duration", "$totalDuration" }
+                             })
+                         };
+         
+                         break;
             case SleepChartFilterType.Month:
                 // aggregation pipline for the type month
                 pipeline = new BsonDocument[]
