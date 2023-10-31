@@ -1,7 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-
 namespace Ayura.API.Models;
 
 //Community Model
@@ -29,4 +28,5 @@ public class Community
     [BsonElement("challenges")]
     [BsonRepresentation(BsonType.ObjectId)]
     public List<string> Challenges { get; set; } = new List<string>();
+
 }

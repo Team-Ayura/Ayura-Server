@@ -2,6 +2,7 @@ using System.Text;
 using Ayura.API.Configuration;
 using Ayura.API.Features.Activity.Services;
 using Ayura.API.Features.EmailVerification.Services;
+using Ayura.API.Features.MoodTracking.Services;
 using Ayura.API.Features.OTP.Services;
 using Ayura.API.Features.Profile.Helpers.MailService;
 using Ayura.API.Features.Profile.Services;
@@ -24,6 +25,10 @@ builder.Services.AddSingleton<IAppSettings>(sp =>
 
 builder.Services.Configure<AyuraDatabaseSettings>(
     builder.Configuration.GetSection(nameof(AyuraDatabaseSettings)));
+
+// Auth Middleware
+builder.Services.AddScoped<AuthMiddleware>();
+
 builder.Services.AddSingleton<IAyuraDatabaseSettings>(sp =>
     sp.GetRequiredService<IOptions<AyuraDatabaseSettings>>().Value);
 
@@ -39,6 +44,7 @@ builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 builder.Services.AddScoped<IWalkAndRunningService, WalkAndRunningService>();
 builder.Services.AddScoped<ICyclingService, CyclingService>();
 builder.Services.AddScoped<ISleepService, SleepService>();
+builder.Services.AddScoped<IMoodService, MoodService>();
 
 
 //Injecting Community Service
@@ -95,6 +101,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<AuthMiddleware>();
 
 app.MapControllers();
 

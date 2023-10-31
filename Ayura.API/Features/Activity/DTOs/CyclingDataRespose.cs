@@ -9,7 +9,7 @@ public class CyclingDataRespose
     public int avgCaloriesBurned { get; set; } = 0;
     public int avgDuration { get; set; } = 0;
     public int improvement { get; set; } = 0;
-    public List<int> distances { get; set; } = new List<int>();
+    public List<int> distances { get; set; } = new();
 
     public List<CyclingHistory>? cyclingHistory { get; set; }
 }

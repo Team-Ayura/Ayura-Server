@@ -1,7 +1,5 @@
 using Ayura.API.Features.Profile.DTOs;
-using Ayura.API.Features.Profile.Helpers;
 using Ayura.API.Features.Profile.Services;
-using Ayura.API.Global;
 using Ayura.API.Global.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +16,20 @@ public class ProfileController : ControllerBase
     {
         _profileRetrieveService = profileRetrieveService;
         _profileUpdateService = profileUpdateService;
+    }
+
+    [HttpGet("testwithauth")]
+    public IActionResult TestApi()
+    {
+        return Ok("Authorized Test Api");
+    }
+
+    // test request
+
+    [HttpGet("testnoauth")]
+    public IActionResult Test()
+    {
+        return Ok("No Auth Test");
     }
 
     [HttpGet("details")]
@@ -38,7 +50,7 @@ public class ProfileController : ControllerBase
             var response = new
             {
                 ErrorMessage = "An error occurred while processing the request",
-                ExceptionMessage = ex.Message,
+                ExceptionMessage = ex.Message
             };
 
             return StatusCode(500, response);
@@ -64,7 +76,7 @@ public class ProfileController : ControllerBase
             var response = new
             {
                 ErrorMessage = "An error occurred while processing the request",
-                ExceptionMessage = ex.Message,
+                ExceptionMessage = ex.Message
             };
             return StatusCode(500, response);
         }

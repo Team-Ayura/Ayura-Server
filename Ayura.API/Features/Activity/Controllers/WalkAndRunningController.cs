@@ -14,7 +14,7 @@ public class WalkAndRunningController : Controller
     {
         _walkAndRunningService = walkAndRunningService;
     }
-    
+
     // 1. Get walk and running data 
     [HttpGet("getwalkandrundatabyfilter")]
     public async Task<IActionResult> GetWalkAndRunningDataByFilter(string userId, string filterType)
@@ -46,7 +46,7 @@ public class WalkAndRunningController : Controller
             throw;
         }
     }
-    
+
     // 3. Get today's improvement considering past data
     [HttpGet("getwalkandrunningimprovement")]
     public async Task<IActionResult> GetWalkAndRunningImprovement(string userId, int todayStepCount)
@@ -62,5 +62,4 @@ public class WalkAndRunningController : Controller
             throw;
         }
     }
-    
 }
