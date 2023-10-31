@@ -35,6 +35,7 @@
         <Folder Include="Controllers\MedicationTracking\" />
         <Folder Include="Controllers\MoodTracking\" />
         <Folder Include="Controllers\SymptomTracking\" />
+        <Folder Include="Features\Challenge\DTOs\" />
         <Folder Include="Features\Profile\Models\" />
     </ItemGroup>
 

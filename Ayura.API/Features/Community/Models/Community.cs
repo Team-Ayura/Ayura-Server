@@ -24,4 +24,9 @@ public class Community
     [BsonElement("members")]
     [BsonRepresentation(BsonType.ObjectId)]
     public List<string> Members { get; set; } = new List<string>();
+    
+    //Challenge list
+    [BsonElement("challenges")]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public List<string> Challenges { get; set; } = new List<string>();
 }
