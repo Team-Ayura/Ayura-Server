@@ -10,7 +10,9 @@ public class AuthMiddleware : IMiddleware
         List<string> excludedPaths = new List<string>
         {
             "/api/profile/testnoauth",
-            "/api/profile/testwithauth"
+            "/api/profile/testwithauth",
+            "/api/auth/signin",
+            "/api/auth/signup",
         };
 
         // Check if the request path is in the excluded list
