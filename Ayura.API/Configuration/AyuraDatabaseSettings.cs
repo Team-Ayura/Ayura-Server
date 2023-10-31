@@ -12,6 +12,7 @@ public class AyuraDatabaseSettings : IAyuraDatabaseSettings
     public string CommunityCollection { get; set; } = null!;
     public string PostCollection { get; set; } = string.Empty;
     public string CommentCollection { get; set; } = null!;
+    public string ChallengeCollection { get; set; } = string.Empty;
 
     public string DatabaseName { get; set; } = string.Empty;
     public string ConnectionString { get; set; } = string.Empty;

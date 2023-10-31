@@ -55,7 +55,8 @@ builder.Services.AddScoped<PostService>();
 //Injecting Comment Service
 builder.Services.AddScoped<CommentService>();
 
-
+//Injecting Challenge Service
+builder.Services.AddScoped<ChallengeService>();
 // Mail Settings
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailService, MailService>();

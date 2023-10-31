@@ -26,16 +26,17 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Controllers\ActivityTracking\"/>
-        <Folder Include="Controllers\Challeges\"/>
-        <Folder Include="Controllers\Community\"/>
-        <Folder Include="Controllers\HealthTips\"/>
-        <Folder Include="Controllers\MealPlan\"/>
-        <Folder Include="Controllers\MedicationTracking\"/>
-        <Folder Include="Controllers\MoodTracking\"/>
-        <Folder Include="Controllers\SymptomTracking\"/>
-        <Folder Include="Features\Profile\Models\"/>
+   <ItemGroup>
+        <Folder Include="Controllers\ActivityTracking\" />
+        <Folder Include="Controllers\Challeges\" />
+        <Folder Include="Controllers\Community\" />
+        <Folder Include="Controllers\HealthTips\" />
+        <Folder Include="Controllers\MealPlan\" />
+        <Folder Include="Controllers\MedicationTracking\" />
+        <Folder Include="Controllers\MoodTracking\" />
+        <Folder Include="Controllers\SymptomTracking\" />
+        <Folder Include="Features\Challenge\DTOs\" />
+        <Folder Include="Features\Profile\Models\" />
     </ItemGroup>
 
 </Project>
