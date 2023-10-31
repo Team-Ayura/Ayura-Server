@@ -13,6 +13,8 @@ public class SleepHistory
     [BsonElement("bedTime")] public DateTime BedTime { get; set; }
     
     [BsonElement("wakeupTime")] public DateTime WakeupTime { get; set; }
+    
+    [BsonElement("duration")] public int Duration { get; set; }
 
     [BsonElement("quality")] public string? Quality { get; set; }
     
