@@ -34,14 +34,14 @@ public class SleepService : ISleepService
     // 1. Add sleep data each day 
     public async Task<string> AddSleepData(AddSleepDataDto addSleepDataDto)
     {
-       
-        // map signin request to a user
+        // map sleep request to a user
         var oneSleepData = new SleepHistory
         {
             Id = ObjectId.GenerateNewId().ToString(),
             BedTime = addSleepDataDto.BedTime,
             WakeupTime = addSleepDataDto.WakeupTime,
-            
+            Duration = addSleepDataDto.Duration,
+            Quality = addSleepDataDto.Quality,
             BeforeSleepAffect = addSleepDataDto.BeforeSleepAffect,
             AfterSleepAffect = addSleepDataDto.AfterSleepAffect,
             

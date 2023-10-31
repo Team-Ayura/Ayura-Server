@@ -1,7 +1,5 @@
 using Ayura.API.Features.EmailVerification.DTOs;
 using Ayura.API.Features.EmailVerification.Services;
-using Ayura.API.Features.Profile.Helpers;
-using Ayura.API.Global;
 using Ayura.API.Global.Helpers;
 using Microsoft.AspNetCore.Mvc;
 

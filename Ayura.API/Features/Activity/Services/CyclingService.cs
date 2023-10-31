@@ -12,23 +12,25 @@ namespace Ayura.API.Features.Activity.Services;
 
 public class CyclingService : ICyclingService
 {
-    private readonly IMongoCollection<User> _userCollection;
     private readonly IMapper _mapper;
+    private readonly IMongoCollection<User> _userCollection;
 
     public CyclingService(IAyuraDatabaseSettings settings, IMongoClient mongoClient)
     {
         // database and collections setup
         var database = mongoClient.GetDatabase(settings.DatabaseName);
         _userCollection = database.GetCollection<User>(settings.UserCollection);
-        
+
         // DTO to model mapping setup
         var mapperConfig = new MapperConfiguration(cfg => { cfg.CreateMap<AddCyclingRequest, CyclingHistory>(); });
 
         _mapper = mapperConfig.CreateMapper();
     }
+
     // 1. Get walk and running data by a filter (day, week, month or year)
     public async Task<object> GetCyclingData(string userId, string filterType)
-    {   // define the result
+    {
+        // define the result
         var response = new CyclingDataRespose();
         // identify the time duration.
         var activityfilter = (ChartFilterType)Enum.Parse(typeof(ChartFilterType), filterType);
@@ -46,7 +48,7 @@ public class CyclingService : ICyclingService
                 if (diff < 0)
                     diff += 7;
 
-                startingDate = today.AddDays(-diff+1).Date;
+                startingDate = today.AddDays(-diff + 1).Date;
                 break;
             case ChartFilterType.Month:
                 startingDate = new DateTime(today.Year, today.Month, 1);
@@ -55,42 +57,40 @@ public class CyclingService : ICyclingService
                 startingDate = new DateTime(today.Year, 1, 1);
                 break;
         }
+
         Console.WriteLine(startingDate);
         Console.WriteLine(endingDate);
         // set the timeperiod
         response.timePeriod = $"{startingDate.ToString("MMM dd")} - {endingDate.ToString("MMM dd")}";
-        if (activityfilter == ChartFilterType.Day)
-        {
-            response.timePeriod = $"{startingDate.ToString("MMM dd")}";
-        }
-        
+        if (activityfilter == ChartFilterType.Day) response.timePeriod = $"{startingDate.ToString("MMM dd")}";
+
         // fetch average distance covered in the above duration
         response.avgDistanceCycled = await _getAverageDistaceCovered(userId, startingDate, endingDate);
-        
+
         // fetch average step count covered in the above duration
         // response.avgStepCount = await _getAverageStepCount(userId, startingDate, endingDate);
-        
+
         // fetch average movement minutes in the above duration
         response.avgDuration = await _getAverageMoveMinutes(userId, startingDate, endingDate);
-        
+
         // fetch average calories burned in the above duration
         response.avgCaloriesBurned = await _getAverageCaloriesBurned(userId, startingDate, endingDate);
-        
+
         // calculate the improvement (current average vs average in th period)
         response.improvement = await _getDistanceImprovement(userId, response.avgDistanceCycled);
-        
+
         // fetch the step count in the above duration
         response.distances = await _getDistances(userId, activityfilter, startingDate, endingDate);
 
         response.cyclingHistory = await _getCyclingHistory(userId, startingDate, endingDate);
         return response;
     }
-    
+
     // 2. Add cycling data each day at a spesific time
     public async Task<string> AddCyclingData(AddCyclingRequest addCyclingRequest)
     {
         var today = DateTime.Today;
-        
+
         // map signin request to a user
         var cyclingTrip = new CyclingHistory
         {
@@ -101,9 +101,9 @@ public class CyclingService : ICyclingService
             Duration = addCyclingRequest.Duration,
             CaloriesBurned = addCyclingRequest.CaloriesBurned,
             Path = addCyclingRequest.Path,
-            Images = addCyclingRequest.Images,
+            Images = addCyclingRequest.Images
         };
-        
+
         var filter = Builders<User>.Filter.Eq(u => u.Id, addCyclingRequest.UserId);
         var update = Builders<User>.Update.Push<CyclingHistory>(u => u.MeasurableActivities.Cycling, cyclingTrip);
 
@@ -111,7 +111,7 @@ public class CyclingService : ICyclingService
 
         return "success";
     }
-    
+
     // 3. Get Today's improvement for distance
     public async Task<int> GetTodayImprovement(string userId, int todayStepCount)
     {
@@ -123,21 +123,24 @@ public class CyclingService : ICyclingService
     {
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-            new BsonDocument("$unwind", "$measurableActivities.cycling"),
-            new BsonDocument("$match", new BsonDocument
+            new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+            new("$unwind", "$measurableActivities.cycling"),
+            new("$match", new BsonDocument
             {
                 {
                     "$and", new BsonArray
                     {
-                        new BsonDocument("measurableActivities.cycling.startTime", new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
-                        new BsonDocument("measurableActivities.cycling.endTime", new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
+                        new BsonDocument("measurableActivities.cycling.startTime",
+                            new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
+                        new BsonDocument("measurableActivities.cycling.endTime",
+                            new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
                     }
                 }
             }),
-            new BsonDocument("$group", new BsonDocument
+            new("$group", new BsonDocument
             {
-                { "_id", new BsonDocument
+                {
+                    "_id", new BsonDocument
                     {
                         {
                             "$dateToString", new BsonDocument
@@ -159,31 +162,33 @@ public class CyclingService : ICyclingService
         if (result != null && result.TryGetValue("averageDistaceCycled", out var averageDistaceCycledValue))
         {
             var averageDistaceCycled = averageDistaceCycledValue.AsDouble;
-            
+
             Console.WriteLine($"Average Step Count: {averageDistaceCycled}");
             return averageDistaceCycled;
         }
 
         return 0.0;
-
     }
+
     private async Task<int> _getAverageStepCount(string id, DateTime startingDate, DateTime endingDate)
     {
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-            new BsonDocument("$unwind", "$measurableActivities.walkAndRunning"),
-            new BsonDocument("$match", new BsonDocument
+            new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+            new("$unwind", "$measurableActivities.walkAndRunning"),
+            new("$match", new BsonDocument
             {
                 {
                     "$and", new BsonArray
                     {
-                        new BsonDocument("measurableActivities.walkAndRunning.date", new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
-                        new BsonDocument("measurableActivities.walkAndRunning.date", new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
+                        new BsonDocument("measurableActivities.walkAndRunning.date",
+                            new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
+                        new BsonDocument("measurableActivities.walkAndRunning.date",
+                            new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
                     }
                 }
             }),
-            new BsonDocument("$group", new BsonDocument
+            new("$group", new BsonDocument
             {
                 { "_id", "null" },
                 { "averageStepCount", new BsonDocument("$avg", "$measurableActivities.walkAndRunning.stepCount") }
@@ -202,27 +207,30 @@ public class CyclingService : ICyclingService
         }
 
         return 0;
-
     }
+
     private async Task<int> _getAverageMoveMinutes(string id, DateTime startingDate, DateTime endingDate)
     {
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-            new BsonDocument("$unwind", "$measurableActivities.cycling"),
-            new BsonDocument("$match", new BsonDocument
+            new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+            new("$unwind", "$measurableActivities.cycling"),
+            new("$match", new BsonDocument
             {
                 {
                     "$and", new BsonArray
                     {
-                        new BsonDocument("measurableActivities.cycling.startTime", new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
-                        new BsonDocument("measurableActivities.cycling.endTime", new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
+                        new BsonDocument("measurableActivities.cycling.startTime",
+                            new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
+                        new BsonDocument("measurableActivities.cycling.endTime",
+                            new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
                     }
                 }
             }),
-            new BsonDocument("$group", new BsonDocument
+            new("$group", new BsonDocument
             {
-                { "_id", new BsonDocument
+                {
+                    "_id", new BsonDocument
                     {
                         {
                             "$dateToString", new BsonDocument
@@ -249,27 +257,30 @@ public class CyclingService : ICyclingService
         }
 
         return 0;
-
     }
+
     private async Task<int> _getAverageCaloriesBurned(string id, DateTime startingDate, DateTime endingDate)
     {
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-            new BsonDocument("$unwind", "$measurableActivities.cycling"),
-            new BsonDocument("$match", new BsonDocument
+            new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+            new("$unwind", "$measurableActivities.cycling"),
+            new("$match", new BsonDocument
             {
                 {
                     "$and", new BsonArray
                     {
-                        new BsonDocument("measurableActivities.cycling.startTime", new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
-                        new BsonDocument("measurableActivities.cycling.endTime", new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
+                        new BsonDocument("measurableActivities.cycling.startTime",
+                            new BsonDocument("$gte", BsonDateTime.Create(startingDate))),
+                        new BsonDocument("measurableActivities.cycling.endTime",
+                            new BsonDocument("$lte", BsonDateTime.Create(endingDate)))
                     }
                 }
             }),
-            new BsonDocument("$group", new BsonDocument
+            new("$group", new BsonDocument
             {
-                { "_id", new BsonDocument
+                {
+                    "_id", new BsonDocument
                     {
                         {
                             "$dateToString", new BsonDocument
@@ -296,17 +307,18 @@ public class CyclingService : ICyclingService
         }
 
         return 0;
-
     }
+
     private async Task<int> _getDistanceImprovement(string id, double currentAvgDistanceCycled)
     {
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-            new BsonDocument("$unwind", "$measurableActivities.cycling"),
-            new BsonDocument("$group", new BsonDocument
+            new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+            new("$unwind", "$measurableActivities.cycling"),
+            new("$group", new BsonDocument
             {
-                { "_id", new BsonDocument
+                {
+                    "_id", new BsonDocument
                     {
                         {
                             "$dateToString", new BsonDocument
@@ -320,7 +332,7 @@ public class CyclingService : ICyclingService
                 { "averageDistaceCycled", new BsonDocument("$avg", "$measurableActivities.cycling.distance") }
             })
         };
-        
+
         var aggregationCursor = await _userCollection.AggregateAsync<BsonDocument>(pipeline);
         var result = await aggregationCursor.FirstOrDefaultAsync();
         Console.WriteLine("Check below line");
@@ -329,13 +341,14 @@ public class CyclingService : ICyclingService
         if (result != null && result.TryGetValue("averageDistaceCycled", out var averageDistanceValue))
         {
             var averageDistance = averageDistanceValue.AsDouble;
-            return (int)((double)((currentAvgDistanceCycled-averageDistance)*100)/(double)averageDistance);
+            return (int)((currentAvgDistanceCycled - averageDistance) * 100 / averageDistance);
         }
 
         return 0;
-
     }
-    private async Task<List<int>> _getDistances(string id, ChartFilterType filterType, DateTime startingDate, DateTime endingDate)
+
+    private async Task<List<int>> _getDistances(string id, ChartFilterType filterType, DateTime startingDate,
+        DateTime endingDate)
     {
         var distance = GenerateZeroArray(filterType);
         var index = 0;
@@ -348,9 +361,9 @@ public class CyclingService : ICyclingService
                 // aggregation pipline for the type week
                 pipeline = new BsonDocument[]
                 {
-                    new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-                    new BsonDocument("$unwind", "$measurableActivities.cycling"),
-                    new BsonDocument("$match", new BsonDocument
+                    new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+                    new("$unwind", "$measurableActivities.cycling"),
+                    new("$match", new BsonDocument
                     {
                         {
                             "measurableActivities.cycling.startTime",
@@ -361,12 +374,12 @@ public class CyclingService : ICyclingService
                             }
                         }
                     }),
-                    new BsonDocument("$project", new BsonDocument
+                    new("$project", new BsonDocument
                     {
                         { "hourOfDay", new BsonDocument("$hour", "$measurableActivities.cycling.startTime") },
                         { "distance", "$measurableActivities.cycling.distance" }
                     }),
-                    new BsonDocument("$group", new BsonDocument
+                    new("$group", new BsonDocument
                     {
                         { "_id", "$hourOfDay" },
                         { "distance", new BsonDocument("$sum", "$distance") }
@@ -374,15 +387,14 @@ public class CyclingService : ICyclingService
                 };
 
 
-
                 break;
             case ChartFilterType.Week:
                 // aggregation pipline for the type week
                 pipeline = new BsonDocument[]
                 {
-                    new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-                    new BsonDocument("$unwind", "$measurableActivities.cycling"),
-                    new BsonDocument("$match", new BsonDocument
+                    new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+                    new("$unwind", "$measurableActivities.cycling"),
+                    new("$match", new BsonDocument
                     {
                         {
                             "measurableActivities.cycling.startTime",
@@ -393,10 +405,11 @@ public class CyclingService : ICyclingService
                             }
                         }
                     }),
-                    new BsonDocument("$project", new BsonDocument
+                    new("$project", new BsonDocument
                     {
                         { "dayOfWeek", new BsonDocument("$dayOfWeek", "$measurableActivities.cycling.startTime") },
-                        { "date", new BsonDocument("$dateToString", new BsonDocument
+                        {
+                            "date", new BsonDocument("$dateToString", new BsonDocument
                             {
                                 { "format", "%Y-%m-%d" },
                                 { "date", "$measurableActivities.cycling.startTime" }
@@ -404,9 +417,10 @@ public class CyclingService : ICyclingService
                         },
                         { "distance", "$measurableActivities.cycling.distance" }
                     }),
-                    new BsonDocument("$group", new BsonDocument
+                    new("$group", new BsonDocument
                     {
-                        { "_id", new BsonDocument
+                        {
+                            "_id", new BsonDocument
                             {
                                 { "dayOfWeek", "$dayOfWeek" },
                                 { "date", "$date" }
@@ -414,7 +428,7 @@ public class CyclingService : ICyclingService
                         },
                         { "totalDistance", new BsonDocument("$sum", "$distance") }
                     }),
-                    new BsonDocument("$project", new BsonDocument
+                    new("$project", new BsonDocument
                     {
                         { "unit", "$_id.dayOfWeek" },
                         { "distance", "$totalDistance" }
@@ -426,9 +440,9 @@ public class CyclingService : ICyclingService
                 // aggregation pipline for the type month
                 pipeline = new BsonDocument[]
                 {
-                    new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-                    new BsonDocument("$unwind", "$measurableActivities.cycling"),
-                    new BsonDocument("$match", new BsonDocument
+                    new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+                    new("$unwind", "$measurableActivities.cycling"),
+                    new("$match", new BsonDocument
                     {
                         {
                             "measurableActivities.cycling.startTime",
@@ -439,10 +453,11 @@ public class CyclingService : ICyclingService
                             }
                         }
                     }),
-                    new BsonDocument("$project", new BsonDocument
+                    new("$project", new BsonDocument
                     {
                         { "dayOfMonth", new BsonDocument("$dayOfMonth", "$measurableActivities.cycling.startTime") },
-                        { "date", new BsonDocument("$dateToString", new BsonDocument
+                        {
+                            "date", new BsonDocument("$dateToString", new BsonDocument
                             {
                                 { "format", "%Y-%m-%d" },
                                 { "date", "$measurableActivities.cycling.startTime" }
@@ -450,9 +465,10 @@ public class CyclingService : ICyclingService
                         },
                         { "distance", "$measurableActivities.cycling.distance" }
                     }),
-                    new BsonDocument("$group", new BsonDocument
+                    new("$group", new BsonDocument
                     {
-                        { "_id", new BsonDocument
+                        {
+                            "_id", new BsonDocument
                             {
                                 { "dayOfMonth", "$dayOfMonth" },
                                 { "date", "$date" }
@@ -460,7 +476,7 @@ public class CyclingService : ICyclingService
                         },
                         { "totalDistance", new BsonDocument("$sum", "$distance") }
                     }),
-                    new BsonDocument("$project", new BsonDocument
+                    new("$project", new BsonDocument
                     {
                         { "unit", "$_id.dayOfMonth" },
                         { "distance", "$totalDistance" }
@@ -472,9 +488,9 @@ public class CyclingService : ICyclingService
                 // aggregation pipline for the type year
                 pipeline = new BsonDocument[]
                 {
-                    new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
-                    new BsonDocument("$unwind", "$measurableActivities.cycling"),
-                    new BsonDocument("$match", new BsonDocument
+                    new("$match", new BsonDocument("_id", ObjectId.Parse(id))),
+                    new("$unwind", "$measurableActivities.cycling"),
+                    new("$match", new BsonDocument
                     {
                         {
                             "measurableActivities.cycling.startTime",
@@ -485,15 +501,16 @@ public class CyclingService : ICyclingService
                             }
                         }
                     }),
-                    new BsonDocument("$project", new BsonDocument
+                    new("$project", new BsonDocument
                     {
                         { "monthOfYear", new BsonDocument("$month", "$measurableActivities.cycling.startTime") },
                         { "dayOfMonth", new BsonDocument("$dayOfMonth", "$measurableActivities.cycling.startTime") },
                         { "distance", "$measurableActivities.cycling.distance" }
                     }),
-                    new BsonDocument("$group", new BsonDocument
+                    new("$group", new BsonDocument
                     {
-                        { "_id", new BsonDocument
+                        {
+                            "_id", new BsonDocument
                             {
                                 { "monthOfYear", "$monthOfYear" },
                                 { "dayOfMonth", "$dayOfMonth" }
@@ -502,12 +519,12 @@ public class CyclingService : ICyclingService
                         { "dailyTotalDistance", new BsonDocument("$sum", "$distance") },
                         { "count", new BsonDocument("$sum", 1) } // Count the number of entries for each day
                     }),
-                    new BsonDocument("$group", new BsonDocument
+                    new("$group", new BsonDocument
                     {
                         { "_id", "$_id.monthOfYear" }, // Group by month
                         { "averageDistance", new BsonDocument("$avg", "$dailyTotalDistance") }
                     }),
-                    new BsonDocument("$project", new BsonDocument
+                    new("$project", new BsonDocument
                     {
                         { "unit", "$_id" }, // Rename _id as unit
                         { "distance", "$averageDistance" }
@@ -517,8 +534,8 @@ public class CyclingService : ICyclingService
 
                 break;
         }
-        
-        
+
+
         var aggregationCursor = await _userCollection.AggregateAsync<BsonDocument>(pipeline);
         var results = await aggregationCursor.ToListAsync();
         foreach (var result in results)
@@ -528,22 +545,16 @@ public class CyclingService : ICyclingService
                 result.TryGetValue("unit", out var month) &&
                 result.TryGetValue("distance", out var distancecycled))
             {
-                while (index+1 < (int)month)
-                {
-                    index++;
-                }
-                
-                if ((int)month == index + 1)
-                {
-                    distance[index] = (int)distancecycled.AsDouble;
-                }
+                while (index + 1 < (int)month) index++;
+
+                if ((int)month == index + 1) distance[index] = (int)distancecycled.AsDouble;
             }
 
             index++;
         }
+
         Console.WriteLine(distance);
         return distance.ToList();
-
     }
 
     private async Task<List<CyclingHistory>> _getCyclingHistory(string id, DateTime startingDate, DateTime endingDate)
@@ -565,9 +576,10 @@ public class CyclingService : ICyclingService
 
         return new List<CyclingHistory>();
     }
+
     public int[] GenerateZeroArray(ChartFilterType filterType)
     {
-        int length = 0;
+        var length = 0;
 
         switch (filterType)
         {
@@ -589,9 +601,7 @@ public class CyclingService : ICyclingService
                 throw new ArgumentException("Unsupported filter type");
         }
 
-        int[] zeroArray = new int[length];
+        var zeroArray = new int[length];
         return zeroArray;
     }
-
 }
-

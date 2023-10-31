@@ -4,7 +4,6 @@ using Ayura.API.Features.OTP.DTOs;
 using Ayura.API.Features.OTP.Helpers;
 using Ayura.API.Features.OTP.Models;
 using Ayura.API.Features.OTP.Services;
-using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;

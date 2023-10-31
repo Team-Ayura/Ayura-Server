@@ -1,16 +1,15 @@
-using System.Text;
-using System.Threading.Tasks;
 using Ayura.API.Global.Helpers;
-using Microsoft.AspNetCore.Http;
 
 public class AuthMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        List<string> excludedPaths = new List<string>
+        var excludedPaths = new List<string>
         {
             "/api/profile/testnoauth",
-            "/api/profile/testwithauth"
+            "/api/profile/testwithauth",
+            "/api/auth/signin",
+            "/api/auth/signup"
         };
 
         // Check if the request path is in the excluded list
@@ -19,7 +18,7 @@ public class AuthMiddleware : IMiddleware
             await next(context);
             return;
         }
-        
+
         // Check if the Authorization header is present
         if (!context.Request.Headers.ContainsKey("Authorization"))
         {
@@ -27,8 +26,8 @@ public class AuthMiddleware : IMiddleware
             await context.Response.WriteAsync("Authorization header is missing - By Middleware");
             return;
         }
-        
-        string? userId = ResolveJwt.ResolveIdFromJwt(context.Request);
+
+        var userId = ResolveJwt.ResolveIdFromJwt(context.Request);
         if (string.IsNullOrEmpty(userId))
         {
             context.Response.StatusCode = 401; // Unauthorized
