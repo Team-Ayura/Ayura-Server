@@ -12,6 +12,5 @@ public class AddCyclingRequest
     public int CaloriesBurned { get; set; }
     public List<LocationPoint>? Path { get; set; }
 
-    public List<string>? Images { get; set; } = new List<string>();
-
+    public List<string>? Images { get; set; } = new();
 }

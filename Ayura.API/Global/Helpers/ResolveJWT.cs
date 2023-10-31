@@ -10,7 +10,7 @@ public class ResolveJwt
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.ReadJwtToken(jwtToken);
-        string? id = token.Claims.FirstOrDefault(claim => claim.Type == "nameid")?.Value;
+        var id = token.Claims.FirstOrDefault(claim => claim.Type == "nameid")?.Value;
 
         return id;
     }

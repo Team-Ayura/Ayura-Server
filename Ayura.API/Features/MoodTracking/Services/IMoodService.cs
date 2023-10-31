@@ -1,9 +1,8 @@
-using Ayura.API.Features.MoodTracking.DTOs;
-
 namespace Ayura.API.Features.MoodTracking.Services;
 
 public interface IMoodService
 {
-    Task<String> AddMoodData(AddMoodRequestDTO addMoodRequestDto, string userId);
-    
+    Task<DailyMood> GetMoodsForDayAsync(string userId, DateTime date);
+    Task<string> AddMoodsForDayAsync(string userId, MoodEntry moodEntry, DateTime date);
+    Task<string> EditMoodsForDayAsync(string userId, DateTime date, List<MoodEntry> moodEntries);
 }

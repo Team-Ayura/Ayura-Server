@@ -15,8 +15,8 @@ public class EmailVerificationService : IEmailVerificationService
 {
     private readonly IOptions<AppSettings> _appSettings;
     private readonly IMongoCollection<Evc> _evcCollection;
-    private readonly IMapper _mapper;
     private readonly IMailService _mailService;
+    private readonly IMapper _mapper;
 
     public EmailVerificationService(IAppSettings appSettings, IAyuraDatabaseSettings settings,
         IMongoClient mongoClient, IOptions<AppSettings> appSettingsOptions, IMailService mailService)
@@ -33,7 +33,7 @@ public class EmailVerificationService : IEmailVerificationService
             cfg.CreateMap<EvcRequestDto, Evc>().ReverseMap();
             cfg.CreateMap<EvcVerifyDto, Evc>().ReverseMap();
         });
-        
+
 
         _mapper = mapperConfig.CreateMapper();
     }
@@ -58,16 +58,12 @@ public class EmailVerificationService : IEmailVerificationService
         var evcFromDatabase = _evcCollection.Find(filter).FirstOrDefault();
 
         if (evcFromDatabase != null)
-        {
             // Console.Write("EVC from database is not null\n");
             await _evcCollection.ReplaceOneAsync(filter, evcModel);
-        }
         else
-        {
             // Console.Write("EVC from database is null");
             await _evcCollection.InsertOneAsync(evcModel);
-        }
-        
+
         // Send Email
         var mailData = new MailData
         {
@@ -76,9 +72,9 @@ public class EmailVerificationService : IEmailVerificationService
             EmailSubject = "Ayura Email Verification Code",
             EmailBody = "Your email verification code is: " + evc
         };
-        
+
         await _mailService.SendMailAsync(mailData);
-        
+
         return "EVC sent via email\n";
     }
 

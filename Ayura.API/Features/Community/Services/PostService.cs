@@ -8,8 +8,8 @@ namespace Ayura.API.Services;
 
 public class PostService : IPostService
 {
-    private readonly IMongoCollection<Post> _postCollection;
     private readonly IMapper _mapper;
+    private readonly IMongoCollection<Post> _postCollection;
 
     public PostService(IAyuraDatabaseSettings settings, IMongoClient mongoClient)
     {
@@ -25,12 +25,14 @@ public class PostService : IPostService
         var filter = Builders<Post>.Filter.Eq("CommunityId", communityId);
         return await _postCollection.Find(filter).ToListAsync();
     }
-    
-    // 2. Get a post by Id
-    public async Task<Post> GetPost(string id) =>
-        await _postCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
 
-    
+    // 2. Get a post by Id
+    public async Task<Post> GetPost(string id)
+    {
+        return await _postCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
+    }
+
+
     public async Task<Post> CreatePost(Post post)
     {
         await _postCollection.InsertOneAsync(post);
@@ -41,14 +43,11 @@ public class PostService : IPostService
     {
         var filter = Builders<Post>.Filter.Eq(c => c.Id, updatedPost.Id);
         var existingPost = await _postCollection.Find(filter).FirstOrDefaultAsync();
-        if (existingPost != null)
-        {
-            await _postCollection.ReplaceOneAsync(filter, updatedPost);
-        }
-        
+        if (existingPost != null) await _postCollection.ReplaceOneAsync(filter, updatedPost);
     }
 
-    public async Task DeletePost(string id) =>
+    public async Task DeletePost(string id)
+    {
         await _postCollection.DeleteOneAsync(c => c.Id == id);
-
+    }
 }
