@@ -34,19 +34,24 @@ public class SleepService : ISleepService
     // 1. Add sleep data each day 
     public async Task<string> AddSleepData(AddSleepDataDto addSleepDataDto)
     {
-        
+       
         // map signin request to a user
         var oneSleepData = new SleepHistory
         {
             Id = ObjectId.GenerateNewId().ToString(),
             BedTime = addSleepDataDto.BedTime,
             WakeupTime = addSleepDataDto.WakeupTime,
-            Duration = addSleepDataDto.Duration,
-            Quality = addSleepDataDto.Quality,
+            
             BeforeSleepAffect = addSleepDataDto.BeforeSleepAffect,
             AfterSleepAffect = addSleepDataDto.AfterSleepAffect,
             
         };
+       
+        var sleepDuration = await CalculateDuration(addSleepDataDto.BedTime, addSleepDataDto.WakeupTime);
+        oneSleepData.Duration = sleepDuration;
+        
+        var sleepQuality = await CheckQuality(addSleepDataDto.UserId, addSleepDataDto.Duration);
+        oneSleepData.Quality = sleepQuality;
         
         var filter = Builders<User>.Filter.Eq(u => u.Id, addSleepDataDto.UserId);
         var update = Builders<User>.Update.Push<SleepHistory>(u => u.SleepHistories, oneSleepData);
@@ -391,9 +396,154 @@ public class SleepService : ISleepService
         return zeroArray;
     }
     
-    
-    
-    
+    //find the sleep quality when inserting data
+    public async Task<String> CheckQuality(string userId, int duration)
+    {
+        var user = await _userCollection.Find(u => u.Id == userId).FirstOrDefaultAsync();
+        if (user == null)
+        {
+            // Handle the case where the user is not found
+            return "User not found";
+        }
+
+        var userBirthDate = user.BirthDay;
+        
+
+        var currentDate = DateTime.UtcNow; // Assuming you want to calculate age in UTC
+        var userAge = currentDate.Year - userBirthDate.Year;
+
+        // Adjust the age if the user hasn't had their birthday yet this year
+        if (currentDate < userBirthDate.AddYears(userAge))
+        {
+            userAge--;
+        }
+
+        // Calculate sleep quality based on user's age and sleep duration
+        var sleepQuality = " ";
+
+        if (userAge >= 65)
+        {
+            if (duration < 240)
+            {
+                sleepQuality = "Insufficient";
+                
+            }
+            if (duration >= 300 && duration <= 360)
+            {
+                sleepQuality = "sufficient";
+                
+            }
+            if (duration >= 420 && duration <= 540)
+            {
+                sleepQuality = "Good";
+                
+            }
+            if (duration >= 600)
+            {
+                sleepQuality = "Excessive";
+            }
+
+
+        }
+        else if (userAge <= 64 && userAge >= 26)
+        {
+            if (duration < 360)
+            {
+                sleepQuality = "Insufficient";
+                
+            }
+            if (duration == 360)
+            {
+                sleepQuality = "sufficient";
+                
+            }
+            if (duration >= 420 && duration <= 600)
+            {
+                sleepQuality = "Good";
+                
+            }
+            if (duration >= 660)
+            {
+                sleepQuality = "Excessive";
+            }
+        }
+        else if (userAge <= 25 && userAge >= 18)
+        {
+            if (duration < 360)
+            {
+                sleepQuality = "Insufficient";
+                
+            }
+            if (duration == 360)
+            {
+                sleepQuality = "sufficient";
+                
+            }
+            if (duration >= 420 && duration <= 660)
+            {
+                sleepQuality = "Good";
+                
+            }
+            if (duration >= 720)
+            {
+                sleepQuality = "Excessive";
+            }
+        }
+        else if (userAge <= 17 && userAge >= 14)
+        {
+            if (duration < 420)
+            {
+                sleepQuality = "Insufficient";
+                
+            }
+            if (duration == 420)
+            {
+                sleepQuality = "sufficient";
+                
+            }
+            if (duration >= 480 && duration <= 720)
+            {
+                sleepQuality = "Good";
+                
+            }
+            if (duration >= 780)
+            {
+                sleepQuality = "Excessive";
+            }
+        }
+        else
+        {
+            if (duration < 480)
+            {
+                sleepQuality = "Insufficient";
+                
+            }
+            if (duration == 480)
+            {
+                sleepQuality = "sufficient";
+                
+            }
+            if (duration >= 540 && duration <= 840)
+            {
+                sleepQuality = "Good";
+                
+            }
+            if (duration >= 900)
+            {
+                sleepQuality = "Excessive";
+            }
+        }
+        
+        return sleepQuality;
+    }
+
+    public async Task<int> CalculateDuration(DateTime BedTime,DateTime WakeupTime)
+    {
+        TimeSpan duration = WakeupTime - BedTime;
+        int durationInMinutes = (int)duration.TotalMinutes;
+
+        return durationInMinutes;
+    }
     }
 
 

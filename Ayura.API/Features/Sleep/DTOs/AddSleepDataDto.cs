@@ -10,7 +10,7 @@ public class AddSleepDataDto
     
     public int Duration { get; set; }
     
-    public string? Quality { get; set; }
+    public String? Quality { get; set; }
     
     public List<string>? BeforeSleepAffect { get; set; }
 
