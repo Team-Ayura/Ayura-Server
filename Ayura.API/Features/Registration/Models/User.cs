@@ -44,5 +44,4 @@ public class User
     [BsonElement("sleepHistories")] public List<SleepHistory> SleepHistories { get; set; } = null!;
 
     [BsonElement("moodHistories")] public List<DailyMood> MoodsHistories { get; set; } = null!;
-    
 }

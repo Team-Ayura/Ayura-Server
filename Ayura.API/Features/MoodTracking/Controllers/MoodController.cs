@@ -37,7 +37,7 @@ public class MoodController : ControllerBase
         // response 200
         return Ok(moodData);
     }
-    
+
     // addmood using AddMooodRequestDTO
     [HttpPost("addmood/{date}")]
     public async Task<IActionResult> AddMoodsForDay([FromBody] AddMoodRequestDTO addMoodRequest, DateTime date)
@@ -45,8 +45,8 @@ public class MoodController : ControllerBase
         // get userid from httpcontext middleware
         var userId = HttpContext.Items["UserId"].ToString();
         Console.WriteLine(date);
-        
-        
+
+
         // map variables except date to moodentry object
         var moodEntry = new MoodEntry
         {
@@ -54,23 +54,22 @@ public class MoodController : ControllerBase
             MoodName = addMoodRequest.MoodName,
             MoodWeight = addMoodRequest.MoodWeight
         };
-        
+
         // print moodentry object items
         Console.WriteLine(moodEntry.Time);
         Console.WriteLine(moodEntry.MoodName);
         Console.WriteLine(moodEntry.MoodWeight);
-        
+
         // pass userid, moodentry object and date to service
         var moodAddStatus = await _moodService.AddMoodsForDayAsync(userId, moodEntry, date);
-        
+
         if (moodAddStatus == null)
         {
             Console.WriteLine("Mood Adding Failed");
             return BadRequest("Mood Adding Failed");
         }
-        
+
         // response 200
         return Ok(moodAddStatus);
     }
-
 }

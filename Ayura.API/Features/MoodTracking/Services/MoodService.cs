@@ -36,9 +36,9 @@ public class MoodService : IMoodService
 
         Console.WriteLine("User found");
         if (user == null) return null; // Or throw an exception or return a specific error message
-    
+
         if (user.MoodsHistories == null) return null;
-        
+
         try
         {
             var moodData = user.MoodsHistories.FirstOrDefault(m => m.Date == date.ToUniversalTime());
@@ -58,26 +58,26 @@ public class MoodService : IMoodService
         try
         {
             var user = await _userCollection.Find(u => u.Id == userId).FirstOrDefaultAsync();
-            Console.WriteLine($"User: {user.FirstName}"); 
+            Console.WriteLine($"User: {user.FirstName}");
 
             if (user == null) return "User not found";
-   
-                 
+
+
             if (user.MoodsHistories == null)
             {
                 user.MoodsHistories = new List<DailyMood>();
             }
-            
+
             // check if mood data already exists for the specified date
             var existingMood = user.MoodsHistories.FirstOrDefault(m => m.Date == date.ToUniversalTime());
-            
-            
+
+
             // print attributes from existing mood data
-  
+
             if (existingMood != null)
             {
                 Console.WriteLine("There is already mood data for the specified date");
-                
+
                 // add to the moodEntry to the moodhistory list in user
                 existingMood.MoodEntryList.Add(moodEntry);
                 await _userCollection.ReplaceOneAsync(u => u.Id == userId, user);
@@ -91,7 +91,7 @@ public class MoodService : IMoodService
                 Date = date,
                 MoodEntryList = new List<MoodEntry> { moodEntry }
             };
-            
+
             user.MoodsHistories.Add(newMood);
             await _userCollection.ReplaceOneAsync(u => u.Id == userId, user);
             return "Mood data added successfully";
