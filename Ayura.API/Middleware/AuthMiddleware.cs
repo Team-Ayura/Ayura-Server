@@ -9,7 +9,8 @@ public class AuthMiddleware : IMiddleware
             "/api/profile/testnoauth",
             "/api/profile/testwithauth",
             "/api/auth/signin",
-            "/api/auth/signup"
+            "/api/auth/signup",
+            "/api/gpt",
         };
 
         // Check if the request path is in the excluded list
