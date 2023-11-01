@@ -265,20 +265,20 @@ public class CommunitiesController : Controller
         return CreatedAtAction("Get", new { id = createdComment.Id }, createdComment);
     }
 
-    // 14. edit comment
-    [HttpPut("comment")]
-    public async Task<IActionResult> EditComment(string commentContent, string commentId)
-    {
-        try
-        {
-            await _commentService.UpdateComment(commentContent, commentId);
-            return Ok("Comment updated successfully.");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred: {ex.Message}");
-        }
-    }
+    // // 14. edit comment
+    // [HttpPut("comment")]
+    // public async Task<IActionResult> EditComment(string commentContent, string commentId)
+    // {
+    //     try
+    //     {
+    //         await _commentService.UpdateComment(commentContent, commentId);
+    //         return Ok("Comment updated successfully.");
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return StatusCode(500, $"An error occurred: {ex.Message}");
+    //     }
+    // }
 
     // 15. delete comment 
     [HttpDelete("comment/{id:length(24)}")]
