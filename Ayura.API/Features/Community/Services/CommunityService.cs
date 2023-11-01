@@ -47,10 +47,11 @@ public class CommunityService : ICommunityService
 
         if (user == null)
         {
-            // Handle the case when the user is not found or has no joined communities
+            // [IN PROGRESS] Handle the case when the user is not found or has no joined communities
             return new List<Community>();
         }
 
+        //Object Ids of joined Communities
         var joinedCommunityIds = user.JoinedCommunities;
 
         // Convert Community Ids to strings

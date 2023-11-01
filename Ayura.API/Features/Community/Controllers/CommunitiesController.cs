@@ -60,22 +60,15 @@ public class CommunitiesController : Controller
         var joinedCommunities = await _communityService.GetJoinedCommunities(userId);
         if (joinedCommunities.Any())
         {
-            return Ok(new
-            {
-                Message = "Community user joined",
-                communities = joinedCommunities
-            });
+            return Ok(joinedCommunities);
         }
 
         // Handle the case when the user is not found or has no joined communities.
-        return NotFound(new
-        {
-            Message = "there are no joined communities or the user is not found."
-        });
+        return NotFound(new { Message = "No Joined Communities Found" });
     }
 
-    // 3. Create a Community
-    [HttpPost("create")]
+    // 4. Create a Community
+    [HttpPost]
     public async Task<IActionResult> CreateCommunity(CommunityModel community)
     {
         try
@@ -90,7 +83,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    // 4. Update a Community
+    // 5. Update a Community
     [HttpPut("{communityId:length(24)}")]
     public async Task<IActionResult> UpdateCommunity(string communityId, CommunityModel updatedCommunity)
     {
@@ -127,7 +120,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    // 5. Delete a community
+    // 6. Delete a community
     [HttpDelete("{communityId:length(24)}")]
     public async Task<IActionResult> Delete(string communityId)
     {
@@ -153,7 +146,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    //6. Adding a member to Community
+    // 7. Adding a member to Community
     [HttpPut("addMember")]
     public async Task<IActionResult> AddMember([FromBody] MemberRequest memberRequest)
     {
@@ -183,7 +176,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    //7. Get all posts of a community
+    // 8. Get all posts of a community
     [HttpGet("posts/{communityId:length(24)}")]
     public async Task<IActionResult> GetCommunityPosts(string communityId)
     {
@@ -206,7 +199,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    // 2. GET a post by ID
+    // 9. GET a post by ID
     [HttpGet("post/{id:length(24)}")] // Constraint to check whether it has 24 chars
     public async Task<IActionResult> GetPost(string id)
     {
@@ -219,7 +212,7 @@ public class CommunitiesController : Controller
         return Ok(existingPost);
     }
 
-    //8.Adding a post to community
+    // 10.Adding a post to community
     [HttpPost("post")]
     public async Task<IActionResult> CreatePost(PostModel post)
     {
@@ -242,7 +235,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    //9.Edit post
+    // 11.Edit post
     [HttpPut("post/{id:length(24)}")]
     public async Task<IActionResult> UpdatePost(string id, PostModel updatedPost)
     {
@@ -270,7 +263,7 @@ public class CommunitiesController : Controller
         return Ok(response);
     }
 
-    //10. delete post 
+    // 12. delete post 
     [HttpDelete("post/{id:length(24)}")]
     public async Task<IActionResult> DeletePost(string id)
     {
@@ -292,7 +285,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    //11. create comment
+    // 13. create comment
     [HttpPost("comment")]
     public async Task<IActionResult> AddComment(CommentModel comment)
     {
@@ -300,7 +293,7 @@ public class CommunitiesController : Controller
         return CreatedAtAction("Get", new { id = createdComment.Id }, createdComment);
     }
 
-    // //12. edit comment
+    // 14. edit comment
     [HttpPut("comment")]
     public async Task<IActionResult> EditComment(string commentContent, string commentId)
     {
@@ -315,7 +308,7 @@ public class CommunitiesController : Controller
         }
     }
 
-    //13. delete comment 
+    // 15. delete comment 
     [HttpDelete("comment/{id:length(24)}")]
     public async Task<IActionResult> DeleteComment(string id)
     {
@@ -338,7 +331,7 @@ public class CommunitiesController : Controller
     }
 
 
-    // 14. Get Community Members
+    // 16. Get Community Members
     [HttpGet("getMembers/{communityId:length(24)}")]
     public async Task<IActionResult> GetCommunityMembers(string communityId)
     {
