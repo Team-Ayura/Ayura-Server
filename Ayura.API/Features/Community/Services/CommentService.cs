@@ -41,35 +41,37 @@ public class CommentService : ICommentService
 
         var update = Builders<Post>.Update.Push(p => p.Comments, comment.Id);
 
+        
         await _postCollection.UpdateOneAsync(postFilter, update);
 
         return comment;
     }
 
     //edit comment
-    public async Task UpdateComment(Comment updatedComment)
-    {
-        var commentFilter = Builders<Comment>.Filter.Eq(c => c.Id, updatedComment.Id);
-        var existingComment = await _commentCollection.Find(commentFilter).FirstOrDefaultAsync();
-
-        if (existingComment != null)
-        {
-            var update = Builders<Comment>.Update
-                .Set(c => c.Content, updatedComment.Content);
-
-            await _commentCollection.UpdateOneAsync(commentFilter, update);
-        }
-        
-        // Update the corresponding comment in the Post collection
-        var postFilter = Builders<Post>.Filter.And(
-            Builders<Post>.Filter.Eq(p => p.Id, updatedComment.PostId),
-            Builders<Post>.Filter.ElemMatch(p => p.Comments, c => c.Id == updatedComment.Id)
-        );
-
-        var postUpdate = Builders<Post>.Update.Set("comments.$.content", updatedComment.Content);
-
-        await _postCollection.UpdateOneAsync(postFilter, postUpdate);
-    }
+    //edit comment
+    // public async Task UpdateComment(Comment updatedComment)
+    // {
+    //     var commentFilter = Builders<Comment>.Filter.Eq(c => c.Id, updatedComment.Id);
+    //     var existingcomment = await _commentCollection.Find(commentFilter).FirstOrDefaultAsync();
+    //
+    //     if (existingcomment != null)
+    //     {
+    //         var update = Builders<Comment>.Update
+    //             .Set(c => c.Content, updatedComment.Content);
+    //
+    //         await _commentCollection.UpdateOneAsync(commentFilter, update);
+    //
+    //         // Update the corresponding comment in the Post collection
+    //         var postFilter = Builders<Post>.Filter.And(
+    //             Builders<Post>.Filter.Eq(p => p.Id, updatedComment.PostId),
+    //             Builders<Post>.Filter.ElemMatch(p => p.Comments, c => c.Id == updatedComment.Id)
+    //         );
+    //
+    //         var postUpdate = Builders<Post>.Update.Set("comments.$.content", updatedComment.Content);
+    //
+    //         await _postCollection.UpdateOneAsync(postFilter, postUpdate);
+    //     }
+    // }
 
     //delete comment
     public async Task DeleteComment(string id)
