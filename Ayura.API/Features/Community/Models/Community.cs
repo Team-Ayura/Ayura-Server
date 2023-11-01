@@ -32,5 +32,5 @@ public class Community
     // AdminId
     [BsonElement("adminId")] //Mapping to MongoDB attributes
     [BsonRepresentation(BsonType.ObjectId)]
-    public string AdminId { get; set; } = null!;
+    public string? AdminId { get; set; } 
 }

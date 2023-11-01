@@ -72,7 +72,7 @@ public class CommunitiesController : Controller
         try
         {
             var createdCommunity = await _communityService.CreateCommunity(community);
-            return CreatedAtAction("Get", new { id = createdCommunity.Id }, createdCommunity);
+            return Ok(createdCommunity);
         }
         catch (Exception e)
         {
