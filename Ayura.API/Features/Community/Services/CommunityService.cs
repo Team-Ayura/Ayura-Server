@@ -2,6 +2,7 @@ using AutoMapper;
 using Ayura.API.Features.Community.DTOs;
 using Ayura.API.Models;
 using Ayura.API.Models.Configuration;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Ayura.API.Services;
@@ -25,10 +26,14 @@ public class CommunityService : ICommunityService
     }
 
     // 1. Get All PUBLIC Communities 
-    public async Task<List<Community>> GetPublicCommunities()
+    public async Task<List<Community>> GetPublicCommunities(string userId)
     {
         var filter = Builders<Community>.Filter.Eq(c => c.IsPublic, true);
-        return await _communityCollection.Find(filter).ToListAsync();
+        var publicCommunities = await _communityCollection.Find(filter).ToListAsync();
+
+        // Filter out communities that the user has joined
+        var communitiesNotJoinedByUser = publicCommunities.Where(c => !c.Members.Contains(userId)).ToList();
+        return communitiesNotJoinedByUser;
     }
 
     // 2. Get a community by Id
@@ -62,7 +67,7 @@ public class CommunityService : ICommunityService
 
         return joinedCommunities;
     }
-    
+
 
     // 4. Create a Community
     public async Task<Community> CreateCommunity(Community community)
@@ -144,7 +149,7 @@ public class CommunityService : ICommunityService
         // User is already added to the community
         return new Community();
     }
-    
+
 
     // 8. Get user by Email
     public async Task<User> GetUserByEmail(string userEmail)

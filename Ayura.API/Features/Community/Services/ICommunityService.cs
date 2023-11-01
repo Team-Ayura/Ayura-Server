@@ -5,7 +5,7 @@ namespace Ayura.API.Services;
 public interface ICommunityService
 {
     // 1. Get all Public communities
-    Task<List<Community>> GetPublicCommunities();
+    Task<List<Community>> GetPublicCommunities(string userId);
 
     // 2. Get a community by Id
     Task<Community> GetCommunityById(string id);

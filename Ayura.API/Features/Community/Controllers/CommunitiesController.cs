@@ -25,15 +25,18 @@ public class CommunitiesController : Controller
         _commentService = commentService;
     }
 
-
-    // From here onwards methods
-    // 1. GET ALL PUBLIC Communities
-    [HttpGet]
-    public async Task<IActionResult> Get()
+// From here onwards methods
+    // 1. GET ALL PUBLIC Communities which are not joined by the user
+    [HttpGet("public/{userId:length(24)}")]
+    public async Task<IActionResult> GetPublic(string userId)
     {
-        var allCommunities = await _communityService.GetPublicCommunities();
-        if (allCommunities.Any()) //Check whether there are any drivers in the collection
+
+        var allCommunities = await _communityService.GetPublicCommunities(userId);
+        // Filter out communities that the user has joined
+        if (allCommunities.Any())
+        {
             return Ok(allCommunities);
+        }
 
         return NotFound(new { Message = "No Communities Found" });
     }
@@ -321,7 +324,4 @@ public class CommunitiesController : Controller
             return StatusCode(500, "An error occurred");
         }
     }
-    
-    
-    
 }
