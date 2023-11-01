@@ -5,7 +5,7 @@ namespace Ayura.API.Global.MailService;
 
 public class BaseMailBuilder : IMailBuilder
 {
-private MailData _mailData = new MailData();
+    private readonly MailData _mailData = new();
 
     public IMailBuilder SetEmailBody(string emailBody)
     {
@@ -35,5 +35,4 @@ private MailData _mailData = new MailData();
     {
         return _mailData;
     }
-    
 }

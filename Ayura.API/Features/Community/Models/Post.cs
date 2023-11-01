@@ -12,7 +12,7 @@ public class Post
     [BsonElement("caption")] public string? Caption { get; set; }
 
     [BsonElement("imageUrl")] public string? ImageUrl { get; set; }
-
+    
     [BsonElement("authorId")]
     [BsonRepresentation(BsonType.ObjectId)]
     public string? AuthorId { get; set; }
@@ -26,4 +26,5 @@ public class Post
     [BsonElement("comments")]
     [BsonRepresentation(BsonType.ObjectId)]
     public List<string> Comments { get; set; } = new List<string>();
+
 }

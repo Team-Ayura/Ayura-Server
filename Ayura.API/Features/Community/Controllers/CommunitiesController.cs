@@ -11,9 +11,9 @@ namespace Ayura.API.Features.Community.Controllers;
 [Route("api/communities")]
 public class CommunitiesController : Controller
 {
+    private readonly CommentService _commentService;
     private readonly CommunityService _communityService; // Getting Service
     private readonly PostService _postService;
-    private readonly CommentService _commentService;
 
     // Community Service is injected on to the controller
     // This is Constructor as an arrow function
@@ -33,9 +33,7 @@ public class CommunitiesController : Controller
     {
         var allCommunities = await _communityService.GetPublicCommunities();
         if (allCommunities.Any()) //Check whether there are any drivers in the collection
-        {
             return Ok(allCommunities);
-        }
 
         return NotFound(new { Message = "No Communities Found" });
     }
@@ -45,10 +43,7 @@ public class CommunitiesController : Controller
     public async Task<IActionResult> Get(string communityId)
     {
         var existingCommunity = await _communityService.GetCommunityById(communityId);
-        if (existingCommunity is null)
-        {
-            return NotFound(new { Message = "Community not found." });
-        }
+        if (existingCommunity is null) return NotFound(new { Message = "Community not found." });
 
         return Ok(existingCommunity);
     }
@@ -79,7 +74,7 @@ public class CommunitiesController : Controller
         catch (Exception e)
         {
             Console.WriteLine(e);
-            return StatusCode(500, $"An error occurred");
+            return StatusCode(500, "An error occurred");
         }
     }
 
@@ -92,10 +87,7 @@ public class CommunitiesController : Controller
             //Get the community from DB
             var existingCommunity = await _communityService.GetCommunityById(communityId);
 
-            if (existingCommunity is null)
-            {
-                return NotFound(new { Message = "Community not found." });
-            }
+            if (existingCommunity is null) return NotFound(new { Message = "Community not found." });
 
             updatedCommunity.Id = existingCommunity.Id;
             // Since this call Company Model the MembersList will be an empty String
@@ -128,15 +120,12 @@ public class CommunitiesController : Controller
         {
             var existingCommunity = await _communityService.GetCommunityById(communityId);
 
-            if (existingCommunity is null)
-            {
-                return NotFound(new { Message = "Community not found." });
-            }
+            if (existingCommunity is null) return NotFound(new { Message = "Community not found." });
 
             await _communityService.DeleteCommunity(existingCommunity);
             return Ok(new
             {
-                Message = "Community deleted successfully.",
+                Message = "Community deleted successfully."
             });
         }
         catch (Exception e)
@@ -156,12 +145,10 @@ public class CommunitiesController : Controller
             var user = await _communityService.GetUserByEmail(memberRequest.UserEmail);
 
             if (user.Id == null)
-            {
                 return NotFound(new
                 {
                     Message = "User Email Not Found"
                 });
-            }
 
             var community = await _communityService.AddMember(memberRequest.CommunityId, user.Id);
 
@@ -183,10 +170,7 @@ public class CommunitiesController : Controller
         try
         {
             var existingCommunity = await _communityService.GetCommunityById(communityId);
-            if (existingCommunity is null)
-            {
-                return NotFound(new { Message = "Community not found." });
-            }
+            if (existingCommunity is null) return NotFound(new { Message = "Community not found." });
 
             var allPosts = await _postService.GetPosts(communityId);
             return Ok(allPosts);
@@ -204,10 +188,7 @@ public class CommunitiesController : Controller
     public async Task<IActionResult> GetPost(string id)
     {
         var existingPost = await _postService.GetPost(id);
-        if (existingPost is null)
-        {
-            return NotFound(new { Message = "Post not found." });
-        }
+        if (existingPost is null) return NotFound(new { Message = "Post not found." });
 
         return Ok(existingPost);
     }
@@ -219,10 +200,7 @@ public class CommunitiesController : Controller
         try
         {
             var existingCommunity = await _communityService.GetCommunityById(post.CommunityId);
-            if (existingCommunity is null)
-            {
-                return NotFound(new { Message = "Community not found." });
-            }
+            if (existingCommunity is null) return NotFound(new { Message = "Community not found." });
 
             var createdPost = await _postService.CreatePost(post);
             return CreatedAtAction("Get", new { id = createdPost.Id }, createdPost);
@@ -242,10 +220,7 @@ public class CommunitiesController : Controller
         //Get the post from DB
         var existingPost = await _postService.GetPost(id);
 
-        if (existingPost is null)
-        {
-            return NotFound(new { Message = "Post not found." });
-        }
+        if (existingPost is null) return NotFound(new { Message = "Post not found." });
 
         updatedPost.Id = existingPost.Id;
         // Since this call Company Model the CommentList will be an empty String
@@ -271,17 +246,14 @@ public class CommunitiesController : Controller
         {
             var existingPost = await _postService.GetPost(id);
 
-            if (existingPost == null)
-            {
-                return NotFound("Post not found.");
-            }
+            if (existingPost == null) return NotFound("Post not found.");
 
             await _postService.DeletePost(id);
             return NoContent();
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"An error occurred");
+            return StatusCode(500, "An error occurred");
         }
     }
 
@@ -316,17 +288,14 @@ public class CommunitiesController : Controller
         {
             var existingComment = await _commentService.GetComment(id);
 
-            if (existingComment == null)
-            {
-                return NotFound("Comment not found.");
-            }
+            if (existingComment == null) return NotFound("Comment not found.");
 
             await _commentService.DeleteComment(id);
             return NoContent();
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"An error occurred");
+            return StatusCode(500, "An error occurred");
         }
     }
 
@@ -339,10 +308,7 @@ public class CommunitiesController : Controller
         {
             var users = await _communityService.GetCommunityMembers(communityId);
 
-            if (users.Any())
-            {
-                return Ok(users);
-            }
+            if (users.Any()) return Ok(users);
 
             return NotFound(new
             {
@@ -352,7 +318,7 @@ public class CommunitiesController : Controller
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return StatusCode(500, $"An error occurred");
+            return StatusCode(500, "An error occurred");
         }
     }
     

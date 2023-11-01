@@ -8,6 +8,7 @@ public interface IAyuraDatabaseSettings
     public string CommunityCollection { get; set; } // COmmunityCollection
     public string PostCollection { get; set; }
     public string CommentCollection { get; set; } //commentCollection
+    public string ChallengeCollection { get; set; }
     public string DatabaseName { get; set; }
     public string ConnectionString { get; set; }
 }

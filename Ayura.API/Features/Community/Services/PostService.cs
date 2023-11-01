@@ -22,7 +22,7 @@ public class PostService : IPostService
         var mapperConfig = new MapperConfiguration(cfg => { cfg.CreateMap<PostRequest, Post>(); });
         _mapper = mapperConfig.CreateMapper();
     }
-    
+
     // public async Task<List<PostRequest>> GetPosts(string communityId)
     // {
     //     var filter = Builders<Post>.Filter.Eq("CommunityId", communityId);
@@ -71,8 +71,13 @@ public class PostService : IPostService
     // 2. Get a post by Id
     public async Task<Post> GetPost(string id) =>
         await _postCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
-
-
+    
+    // public async Task<List<Post>> GetPosts(string communityId)
+    // {
+    //     var filter = Builders<Post>.Filter.Eq("CommunityId", communityId);
+    //     return await _postCollection.Find(filter).ToListAsync();
+    // }
+    
     public async Task<Post> CreatePost(Post post)
     {
         post.CreatedAt = DateTime.UtcNow; // Set the timestamp to current UTC time
@@ -84,12 +89,17 @@ public class PostService : IPostService
     {
         var filter = Builders<Post>.Filter.Eq(c => c.Id, updatedPost.Id);
         var existingPost = await _postCollection.Find(filter).FirstOrDefaultAsync();
+
         if (existingPost != null)
         {
             await _postCollection.ReplaceOneAsync(filter, updatedPost);
         }
     }
 
-    public async Task DeletePost(string id) =>
+    public async Task DeletePost(string id)
+    {
         await _postCollection.DeleteOneAsync(c => c.Id == id);
+
+    }
+
 }

@@ -1,9 +1,12 @@
 using System.Text;
 using Ayura.API.Configuration;
+using Ayura.API.Features.Activity.Services;
 using Ayura.API.Features.EmailVerification.Services;
+using Ayura.API.Features.MoodTracking.Services;
 using Ayura.API.Features.OTP.Services;
 using Ayura.API.Features.Profile.Helpers.MailService;
 using Ayura.API.Features.Profile.Services;
+using Ayura.API.Features.Sleep.Services;
 using Ayura.API.Global.MailService.Configuration;
 using Ayura.API.Models.Configuration;
 using Ayura.API.Services;
@@ -22,6 +25,10 @@ builder.Services.AddSingleton<IAppSettings>(sp =>
 
 builder.Services.Configure<AyuraDatabaseSettings>(
     builder.Configuration.GetSection(nameof(AyuraDatabaseSettings)));
+
+// Auth Middleware
+builder.Services.AddScoped<AuthMiddleware>();
+
 builder.Services.AddSingleton<IAyuraDatabaseSettings>(sp =>
     sp.GetRequiredService<IOptions<AyuraDatabaseSettings>>().Value);
 
@@ -34,6 +41,11 @@ builder.Services.AddScoped<IProfileUpdateService, ProfileUpdateService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
+builder.Services.AddScoped<IWalkAndRunningService, WalkAndRunningService>();
+builder.Services.AddScoped<ICyclingService, CyclingService>();
+builder.Services.AddScoped<ISleepService, SleepService>();
+builder.Services.AddScoped<IMoodService, MoodService>();
+
 
 //Injecting Community Service
 builder.Services.AddScoped<CommunityService>();
@@ -43,7 +55,8 @@ builder.Services.AddScoped<PostService>();
 //Injecting Comment Service
 builder.Services.AddScoped<CommentService>();
 
-
+//Injecting Challenge Service
+builder.Services.AddScoped<ChallengeService>();
 // Mail Settings
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailService, MailService>();
@@ -88,6 +101,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<AuthMiddleware>();
 
 app.MapControllers();
 

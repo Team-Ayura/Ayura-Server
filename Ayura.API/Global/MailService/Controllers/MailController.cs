@@ -9,22 +9,21 @@ namespace Ayura.API.Global.MailService.Controllers;
 public class MailController : ControllerBase
 {
     private readonly IMailService _mailService;
+
+    // create a test maildata for Name Pasan Gimhana and Email Pasangimhana@gmail.com
+    // and send it to the SendMail method
+
+    private readonly MailData mailData = new()
+    {
+        EmailToId = "pasangimhanaofficial@gmail.com", EmailToName = "Pasan Gimhana", EmailSubject = "Test Mail",
+        EmailBody = "This is a test mail"
+    };
+
     //injecting the IMailService into the constructor
     public MailController(IMailService mailService)
     {
         _mailService = mailService;
     }
-    
-    // create a test maildata for Name Pasan Gimhana and Email Pasangimhana@gmail.com
-    // and send it to the SendMail method
-      
-    private MailData mailData = new MailData()
-    {
-        EmailToId = "pasangimhanaofficial@gmail.com"
-        , EmailToName = "Pasan Gimhana"
-        , EmailSubject = "Test Mail"
-        , EmailBody = "This is a test mail"
-    };  
 
     [HttpPost]
     [Route("send")]

@@ -1,3 +1,5 @@
+using Ayura.API.Features.Activity.Models;
+using Ayura.API.Features.Sleep.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -33,8 +35,13 @@ public class User
     [BsonElement("bloodGroup")] public string BloodGroup { get; set; } = null!;
 
     [BsonElement("activityLevel")] public string ActivityLevel { get; set; } = null!;
-    
-    [BsonElement("joinedCommunities")]    
+
+    [BsonElement("joinedCommunities")]
     [BsonRepresentation(BsonType.ObjectId)]
-    public List<string> JoinedCommunities { get; set; } = new List<string>();
+    public List<string> JoinedCommunities { get; set; } = new();
+
+    [BsonElement("measurableActivities")] public MeasurableActivities MeasurableActivities { get; set; } = null!;
+    [BsonElement("sleepHistories")] public List<SleepHistory> SleepHistories { get; set; } = null!;
+
+    [BsonElement("moodHistories")] public List<DailyMood> MoodsHistories { get; set; } = null!;
 }

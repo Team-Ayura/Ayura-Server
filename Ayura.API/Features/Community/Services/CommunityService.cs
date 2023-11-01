@@ -1,18 +1,16 @@
+using AutoMapper;
 using Ayura.API.Features.Community.DTOs;
 using Ayura.API.Models;
-using MongoDB.Driver;
 using Ayura.API.Models.Configuration;
-using AutoMapper;
-using Newtonsoft.Json.Linq;
-
+using MongoDB.Driver;
 
 namespace Ayura.API.Services;
 
 public class CommunityService : ICommunityService
 {
     private readonly IMongoCollection<Community> _communityCollection;
-    private readonly IMongoCollection<User> _userCollection;
     private readonly IMapper _mapper;
+    private readonly IMongoCollection<User> _userCollection;
 
     public CommunityService(IAyuraDatabaseSettings settings, IMongoClient mongoClient)
     {
@@ -39,6 +37,7 @@ public class CommunityService : ICommunityService
         return await _communityCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
     }
 
+
     // 3. Get all the user Joined communities
     public async Task<List<Community>> GetJoinedCommunities(string userId)
     {
@@ -63,7 +62,7 @@ public class CommunityService : ICommunityService
 
         return joinedCommunities;
     }
-
+    
 
     // 4. Create a Community
     public async Task<Community> CreateCommunity(Community community)
@@ -141,12 +140,11 @@ public class CommunityService : ICommunityService
 
             return community;
         }
-        else
-        {
-            // User is already added to the community
-            return new Community();
-        }
+
+        // User is already added to the community
+        return new Community();
     }
+    
 
     // 8. Get user by Email
     public async Task<User> GetUserByEmail(string userEmail)
@@ -164,13 +162,12 @@ public class CommunityService : ICommunityService
         var communityFilter = Builders<Community>.Filter.Eq(c => c.Id, communityId);
         var community = await _communityCollection.Find(communityFilter).FirstOrDefaultAsync();
         var memberIds = community.Members; // Get the Member Ids from the community
-        
+
         // Query the user collection
         var userFilter = Builders<User>.Filter.In(u => u.Id, memberIds);
 
         var users = await _userCollection.Find(userFilter).ToListAsync();
 
         return users;
-        
     }
 }

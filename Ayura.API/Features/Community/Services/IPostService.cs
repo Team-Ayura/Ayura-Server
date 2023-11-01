@@ -14,5 +14,4 @@ public interface IPostService
     Task UpdatePost(Post post);
 
     Task DeletePost(string id);
-
 }
