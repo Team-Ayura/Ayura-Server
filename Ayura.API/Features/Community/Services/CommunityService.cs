@@ -38,6 +38,32 @@ public class CommunityService : ICommunityService
     }
 
 
+    // 3. Get all the user Joined communities
+    public async Task<List<Community>> GetJoinedCommunities(string userId)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            // [IN PROGRESS] Handle the case when the user is not found or has no joined communities
+            return new List<Community>();
+        }
+
+        //Object Ids of joined Communities
+        var joinedCommunityIds = user.JoinedCommunities;
+
+        // Convert Community Ids to strings
+        var joinedCommunityIdStrings = joinedCommunityIds.Select(id => id.ToString());
+
+        var communityFilter = Builders<Community>.Filter.In(c => c.Id, joinedCommunityIdStrings);
+
+        var joinedCommunities = await _communityCollection.Find(communityFilter).ToListAsync();
+
+        return joinedCommunities;
+    }
+    
+
     // 4. Create a Community
     public async Task<Community> CreateCommunity(Community community)
     {
@@ -118,28 +144,7 @@ public class CommunityService : ICommunityService
         // User is already added to the community
         return new Community();
     }
-
-    // 3. Get all the user Joined communities
-    public async Task<List<Community>> GetJoinedCommunities(string userId)
-    {
-        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
-        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
-
-        if (user == null)
-            // Handle the case when the user is not found or has no joined communities
-            return new List<Community>();
-
-        var joinedCommunityIds = user.JoinedCommunities;
-
-        // Convert Community Ids to strings
-        var joinedCommunityIdStrings = joinedCommunityIds.Select(id => id.ToString());
-
-        var communityFilter = Builders<Community>.Filter.In(c => c.Id, joinedCommunityIdStrings);
-
-        var joinedCommunities = await _communityCollection.Find(communityFilter).ToListAsync();
-
-        return joinedCommunities;
-    }
+    
 
     // 8. Get user by Email
     public async Task<User> GetUserByEmail(string userEmail)
