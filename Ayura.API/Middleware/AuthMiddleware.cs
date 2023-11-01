@@ -11,6 +11,8 @@ public class AuthMiddleware : IMiddleware
             "/api/auth/signin",
             "/api/auth/signup",
             "/api/gpt",
+            "/swagger/v1/swagger.json",
+            "/swagger/index.html",
         };
 
         // Check if the request path is in the excluded list
