@@ -46,26 +46,13 @@ public class CommunityService : ICommunityService
     // 3. Get all the user Joined communities
     public async Task<List<Community>> GetJoinedCommunities(string userId)
     {
-        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
-        var user = await _userCollection.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<Community>.Filter.Empty;
 
-        if (user == null)
-        {
-            // [IN PROGRESS] Handle the case when the user is not found or has no joined communities
-            return new List<Community>();
-        }
+        var publicCommunities = await _communityCollection.Find(filter).ToListAsync();
 
-        //Object Ids of joined Communities
-        var joinedCommunityIds = user.JoinedCommunities;
-
-        // Convert Community Ids to strings
-        var joinedCommunityIdStrings = joinedCommunityIds.Select(id => id.ToString());
-
-        var communityFilter = Builders<Community>.Filter.In(c => c.Id, joinedCommunityIdStrings);
-
-        var joinedCommunities = await _communityCollection.Find(communityFilter).ToListAsync();
-
-        return joinedCommunities;
+        // Filter out communities that the user has joined
+        var communitiesNotJoinedByUser = publicCommunities.Where(c => c.Members.Contains(userId)).ToList();
+        return communitiesNotJoinedByUser;
     }
 
 
